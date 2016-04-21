@@ -10,7 +10,9 @@ module.exports = function(urls, dest, done) {
     for (var url of urls) {
         (function(url) {
             request({url: url, encoding: null}, function (err, res, body) {
-                if (err) { return callback(err); }
+                if (err) { 
+                    return done(err);
+                }
 
                 if (body && res.statusCode === 200) {
                     var filename = path.join(dest, path.basename(url));

@@ -46,5 +46,6 @@ image_downloader(options);
 
 Note: This throws an error when `options.done` not specified. 
 
-# License
-This library is licensed under the MIT license.
+## License
+
+Under the MIT license. See [LICENSE](https://github.com/demsking/image-downloader/blob/master/LICENSE) file for more details.

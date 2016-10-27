@@ -10,13 +10,6 @@ npm install --save image-downloader
 ```js
 var image_downloader = require('image-downloader');
 
-image_downloader(['www.someurl.com/image.jpg'], '/path/to/dest', function(err, filename, image) {
-    if (err) {
-        throw err;
-    }
-    console.log('File saved to', filename);
-});
-
 // Download to a directory and save with the original filename
 var options = {
     url: 'http://someurl.com/image.jpg',
@@ -44,7 +37,7 @@ options = {
 image_downloader(options);
 ```
 
-Note: This throws an error when `options.done` not specified. 
+Note: This throws an error when `options.done` not specified.
 
 ## License
 

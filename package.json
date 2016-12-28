@@ -22,6 +22,6 @@
   },
   "homepage": "https://github.com/demsking/image-downloader#readme",
   "dependencies": {
-    "request": "^2.72.0"
+    "request": "^2.79.0"
   }
 }

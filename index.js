@@ -12,7 +12,7 @@ function on_error(err, options) {
 
 module.exports = function(options) {
     if (!options.url) {
-        throw new Error('The option dest is required');
+        throw new Error('The option url is required');
     }
     
     if (!options.dest) {

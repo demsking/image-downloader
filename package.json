@@ -1,6 +1,6 @@
 {
   "name": "image-downloader",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "A Nodejs module for downloading image to disk from a given URL",
   "main": "index.js",
   "scripts": {

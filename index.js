@@ -21,8 +21,7 @@ module.exports = function(options) {
     
     request({url: options.url, encoding: null}, function (err, res, body) {
         if (err) { 
-            on_error(err, options);
-            return;
+            return on_error(err, options);
         }
 
         if (body && res.statusCode === 200) {

@@ -31,15 +31,15 @@ module.exports = function(options) {
             
             fs.writeFile(options.dest, body, 'binary', function(err){
                 if (err) {
-                    on_error(err, options);
+                    return on_error(err, options);
                 }
                 options.done && options.done(false, options.dest, body)
             });
         } else {
             if (!body) { 
-                on_error(new Error('Image loading error - empty body. URL: ' + options.url), options); 
+                return on_error(new Error('Image loading error - empty body. URL: ' + options.url), options); 
             } else { 
-                on_error(new Error('Image loading error - ' + res.statusCode + '. URL: ' + options.url), options); 
+                return on_error(new Error('Image loading error - ' + res.statusCode + '. URL: ' + options.url), options); 
             }
         }
     });

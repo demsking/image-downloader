@@ -25,6 +25,12 @@ module.exports = function(options) {
         }
 
         if (body && res.statusCode === 200) {
+            
+            if (!fs.existsSync(options.dest)){
+                fs.mkdirSync(options.dest);
+                console.log("Destination folder didn't existed. Folder created.");
+            }
+            
             if (!path.extname(options.dest)) {
                 options.dest = path.join(options.dest, path.basename(options.url));
             }

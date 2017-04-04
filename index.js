@@ -4,48 +4,48 @@ const request = require('request')
 const path = require('path')
 const fs = require('fs')
 
-const onError = (err, options) => {
-  if (options.done) {
-    return options.done(err)
+const onError = (err, done) => {
+  if (done) {
+    return done(err)
   }
   throw err
 }
 
-module.exports = (options) => {
-  if (!options.url) {
+module.exports = ({ url, dest, done }) => {
+  if (!url) {
     throw new Error('The option url is required')
   }
 
-  if (!options.dest) {
+  if (!dest) {
     throw new Error('The option dest is required')
   }
 
-  request({url: options.url, encoding: null}, (err, res, body) => {
+  request({ url: url, encoding: null }, (err, res, body) => {
     if (err) {
-      return onError(err, options)
+      return onError(err, done)
     }
 
     if (body && res.statusCode === 200) {
-      if (!fs.existsSync(options.dest)) {
-        fs.mkdirSync(options.dest)
+      if (!fs.existsSync(dest)) {
+        fs.mkdirSync(dest)
         console.log("Destination folder didn't existed. Folder created.")
       }
 
-      if (!path.extname(options.dest)) {
-        options.dest = path.join(options.dest, path.basename(options.url))
+      if (!path.extname(dest)) {
+        dest = path.join(dest, path.basename(url))
       }
 
-      fs.writeFile(options.dest, body, 'binary', (err) => {
+      fs.writeFile(dest, body, 'binary', (err) => {
         if (err) {
-          return onError(err, options)
+          return onError(err, done)
         }
-        options.done && options.done(false, options.dest, body)
+        done && done(false, dest, body)
       })
     } else {
       if (!body) {
-        return onError(new Error('Image loading error - empty body. URL: ' + options.url), options)
+        return onError(new Error('Image loading error - empty body. URL: ' + url), done)
       }
-      onError(new Error('Image loading error - ' + res.statusCode + '. URL: ' + options.url), options)
+      onError(new Error('Image loading error - ' + res.statusCode + '. URL: ' + url), done)
     }
   })
 }

@@ -1,10 +1,10 @@
 {
   "name": "image-downloader",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "A Nodejs module for downloading image to disk from a given URL",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "standard"
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,8 @@
   "homepage": "https://github.com/demsking/image-downloader#readme",
   "dependencies": {
     "request": "^2.79.0"
+  },
+  "devDependencies": {
+    "standard": "^9.0.2"
   }
 }

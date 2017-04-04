@@ -6,8 +6,8 @@
   "engines" : { "node" : ">=6.10.1" },
   "scripts": {
     "pretest": "standard",
-    "test": "mocha test/index.js",
-    "coverage": "istanbul cover _mocha test"
+    "test": "mocha --harmony test/index.js",
+    "coverage": "istanbul --harmony cover _mocha test"
   },
   "repository": {
     "type": "git",

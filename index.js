@@ -26,11 +26,6 @@ module.exports = ({ url, dest, done }) => {
     }
 
     if (body && res.statusCode === 200) {
-      if (!fs.existsSync(dest)) {
-        fs.mkdirSync(dest)
-        console.log("Destination folder didn't existed. Folder created.")
-      }
-
       if (!path.extname(dest)) {
         dest = path.join(dest, path.basename(url))
       }

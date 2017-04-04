@@ -1,10 +1,12 @@
 {
   "name": "image-downloader",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "description": "A Nodejs module for downloading image to disk from a given URL",
   "main": "index.js",
   "scripts": {
-    "test": "standard"
+    "pretest": "standard",
+    "test": "mocha test/index.js",
+    "coverage": "istanbul cover _mocha test"
   },
   "repository": {
     "type": "git",
@@ -25,6 +27,8 @@
     "request": "^2.79.0"
   },
   "devDependencies": {
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0",
     "standard": "^9.0.2"
   }
 }

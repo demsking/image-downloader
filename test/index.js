@@ -130,7 +130,7 @@ describe('download an image', () => {
       done()
     })
   })
-
+/*
   it('should success with async/await', async () => {
     const { filename, image } = await download.image({
       url: 'http://someurl.com/image-success.jpg',
@@ -151,4 +151,5 @@ describe('download an image', () => {
       assert.equal(e instanceof Error, true)
     }
   })
+*/
 })

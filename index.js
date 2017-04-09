@@ -11,7 +11,7 @@ const onError = (err, done) => {
   throw err
 }
 
-module.exports = ({ url, dest, done }) => {
+const downloader = ({ url, dest, done }) => {
   if (!url) {
     throw new Error('The option url is required')
   }
@@ -44,3 +44,18 @@ module.exports = ({ url, dest, done }) => {
     }
   })
 }
+
+downloader.image = ({ url, dest }) => new Promise((resolve, reject) => {
+  downloader({
+    url,
+    dest,
+    done: (err, dest, body) => {
+      if (err) {
+        return reject(err)
+      }
+      resolve(dest, body)
+    }
+  })
+})
+
+module.exports = downloader

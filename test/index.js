@@ -115,7 +115,7 @@ describe('download an image', () => {
     download.image({
       url: 'http://someurl.com/image-success.jpg',
       dest: '/tmp'
-    }).then((filename, image) => {
+    }).then(({ filename, image }) => {
       assert.doesNotThrow(() => fs.accessSync(filename), Error)
       done()
     })
@@ -129,5 +129,26 @@ describe('download an image', () => {
       assert.equal(err instanceof Error, true)
       done()
     })
+  })
+
+  it('should success with async/await', async () => {
+    const { filename, image } = await download.image({
+      url: 'http://someurl.com/image-success.jpg',
+      dest: '/tmp'
+    })
+
+    assert.doesNotThrow(() => fs.accessSync(filename), Error)
+    assert.notEqual(image, null)
+  })
+
+  it('should failed with async/await', async () => {
+    try {
+      await download.image({
+        url: 'http://someurl.com/image-error.jpg',
+        dest: '/tmp'
+      })
+    } catch (e) {
+      assert.equal(e instanceof Error, true)
+    }
   })
 })

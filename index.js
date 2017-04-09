@@ -53,7 +53,7 @@ downloader.image = ({ url, dest }) => new Promise((resolve, reject) => {
       if (err) {
         return reject(err)
       }
-      resolve(dest, body)
+      resolve({ filename: dest, image: body })
     }
   })
 })

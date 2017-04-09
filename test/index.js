@@ -1,7 +1,7 @@
 'use strict'
 
 const fs = require('fs')
-const downloader = require('..')
+const download = require('..')
 const assert = require('assert')
 
 require('request').Request = function ({ url, callback }) {
@@ -24,7 +24,7 @@ require('request').Request = function ({ url, callback }) {
 
 describe('options', () => {
   it('should failed with !options.url === true', (done) => {
-    assert.throws(() => downloader({
+    assert.throws(() => download({
       url: null,
       dest: '/tmp'
     }))
@@ -32,7 +32,7 @@ describe('options', () => {
   })
 
   it('should failed with !options.dest === true', (done) => {
-    assert.throws(() => downloader({
+    assert.throws(() => download({
       url: 'http://someurl.com/image.jpg',
       dest: null
     }))
@@ -42,7 +42,7 @@ describe('options', () => {
 
 describe('download an image', () => {
   it('should save image with the original filename', (done) => {
-    downloader({
+    download({
       url: 'http://someurl.com/image-success.jpg',
       dest: '/tmp',
       done: (err, filename, image) => {
@@ -56,7 +56,7 @@ describe('download an image', () => {
   })
 
   it('should save image with an another filename', (done) => {
-    downloader({
+    download({
       url: 'http://someurl.com/image-success.jpg',
       dest: '/tmp/image-newname.jpg',
       done: (err, filename, image) => {
@@ -70,7 +70,7 @@ describe('download an image', () => {
   })
 
   it('should failed with an error', (done) => {
-    downloader({
+    download({
       url: 'http://someurl.com/image-error.jpg',
       dest: '/tmp',
       done: (err, filename, image) => {
@@ -81,7 +81,7 @@ describe('download an image', () => {
   })
 
   it('should failed with an empty body', (done) => {
-    downloader({
+    download({
       url: 'http://someurl.com/image-empty-body.jpg',
       dest: '/tmp',
       done: (err, filename, image) => {
@@ -93,7 +93,7 @@ describe('download an image', () => {
   })
 
   it('should failed with an I/O error', (done) => {
-    downloader({
+    download({
       url: 'http://someurl.com/image-success.jpg',
       dest: '/root/an/non/existence/dest',
       done: (err, filename, image) => {
@@ -104,10 +104,30 @@ describe('download an image', () => {
   })
 
   it('should throw on failure', (done) => {
-    assert.throws(() => downloader({
+    assert.throws(() => download({
       url: 'http://someurl.com/image.jpg',
       dest: '/tmp'
     }))
     done()
+  })
+
+  it('should save image using Promise', (done) => {
+    download.image({
+      url: 'http://someurl.com/image-success.jpg',
+      dest: '/tmp'
+    }).then((filename, image) => {
+      assert.doesNotThrow(() => fs.accessSync(filename), Error)
+      done()
+    })
+  })
+
+  it('should failed using Promise', (done) => {
+    download.image({
+      url: 'http://someurl.com/image-error.jpg',
+      dest: '/tmp'
+    }).catch((err) => {
+      assert.equal(err instanceof Error, true)
+      done()
+    })
   })
 })

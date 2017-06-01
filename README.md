@@ -51,12 +51,16 @@ const options = {
   dest: '/path/to/dest'                  
 }
 
-try {
-  const { filename, image } = await download.image(options)
-  console.log(filename) // => /path/to/dest/image.jpg
-} catch (e) {
-  throw e
+async function downloadIMG() {
+  try {
+    const { filename, image } = await download.image(options)
+    console.log(filename) // => /path/to/dest/image.jpg 
+  } catch (e) {
+    throw e
+  }
 }
+
+downloadIMG()
 ```
 
 # Previous API (deprecated)

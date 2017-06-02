@@ -1,12 +1,7 @@
 # image-downloader
 A Nodejs module for downloading image to disk from a given URL
 
-[![Standard - JavaScript Style Guide](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
-
-[![Build Status](https://travis-ci.org/demsking/image-downloader.svg?branch=master)](https://travis-ci.org/demsking/image-downloader)
-[![bitHound Overall Score](https://www.bithound.io/github/demsking/image-downloader/badges/score.svg)](https://www.bithound.io/github/demsking/image-downloader)
-[![bitHound Dependencies](https://www.bithound.io/github/demsking/image-downloader/badges/dependencies.svg)](https://www.bithound.io/github/demsking/image-downloader/master/dependencies/npm)
-[![bitHound Code](https://www.bithound.io/github/demsking/image-downloader/badges/code.svg)](https://www.bithound.io/github/demsking/image-downloader)
+[![Build Status](https://travis-ci.org/demsking/image-downloader.svg?branch=master)](https://travis-ci.org/demsking/image-downloader) [![Known Vulnerabilities](https://snyk.io/test/github/demsking/image-downloader/badge.svg)](https://snyk.io/test/github/demsking/image-downloader) [![Coverage Status](https://coveralls.io/repos/github/demsking/image-downloader/badge.svg?branch=master)](https://coveralls.io/github/demsking/image-downloader?branch=master)
 
 # Install
 ```sh

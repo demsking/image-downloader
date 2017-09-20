@@ -1,6 +1,6 @@
 {
   "name": "image-downloader",
-  "version": "3.2.2",
+  "version": "3.3.0",
   "description": "A Nodejs module for downloading image to disk from a given URL",
   "main": "index.js",
   "engines": {
@@ -37,7 +37,8 @@
   },
   "homepage": "https://github.com/demsking/image-downloader#readme",
   "dependencies": {
-    "request": "^2.81.0"
+    "request": "^2.81.0",
+    "request-progress": "^3.0.0"
   },
   "devDependencies": {
     "coveralls": "^2.13.1",

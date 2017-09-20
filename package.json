@@ -1,6 +1,6 @@
 {
   "name": "image-downloader",
-  "version": "3.2.2",
+  "version": "3.3.0",
   "description": "A Nodejs module for downloading image to disk from a given URL",
   "main": "index.js",
   "engines": {
@@ -11,11 +11,7 @@
     "pretest": "standard",
     "test": "mocha --harmony --trace-warnings test",
     "lint": "standard",
-    "lintd": "nodemon -x 'npm run lint'",
-    "testd": "nodemon -x 'mocha --harmony --trace-warnings test'",
     "tag": "git tag `node -p 'require(\"./package\").version'`",
-    "coveraged": "nodemon -x 'npm run coverage'",
-    "testdb": "mocha --debug-brk --harmony --trace-warnings test",
     "debug": "DEBUG=newsletter-server* node-debug index.js",
     "coverage": "istanbul cover _mocha test",
     "coveralls": "standard && istanbul cover _mocha --report lcovonly -- -R spec test && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js --verbose"
@@ -37,13 +33,12 @@
   },
   "homepage": "https://github.com/demsking/image-downloader#readme",
   "dependencies": {
-    "request": "^2.81.0"
+    "request": "^2.82.0"
   },
   "devDependencies": {
     "coveralls": "^2.13.1",
     "istanbul": "^0.4.5",
-    "mocha": "^3.4.2",
-    "nodemon": "^1.11.0",
-    "standard": "^10.0.2"
+    "mocha": "^3.5.3",
+    "standard": "^10.0.3"
   }
 }

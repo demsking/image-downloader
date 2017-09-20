@@ -69,6 +69,13 @@ describe('download an image', () => {
     })
   })
 
+  it('should save image without a callback', () => {
+    download({
+      url: 'http://someurl.com/image-success.jpg',
+      dest: '/tmp'
+    })
+  })
+
   it('should failed with an error', (done) => {
     download({
       url: 'http://someurl.com/image-error.jpg',
@@ -130,26 +137,4 @@ describe('download an image', () => {
       done()
     })
   })
-/*
-  it('should success with async/await', async () => {
-    const { filename, image } = await download.image({
-      url: 'http://someurl.com/image-success.jpg',
-      dest: '/tmp'
-    })
-
-    assert.doesNotThrow(() => fs.accessSync(filename), Error)
-    assert.notEqual(image, null)
-  })
-
-  it('should failed with async/await', async () => {
-    try {
-      await download.image({
-        url: 'http://someurl.com/image-error.jpg',
-        dest: '/tmp'
-      })
-    } catch (e) {
-      assert.equal(e instanceof Error, true)
-    }
-  })
-*/
 })

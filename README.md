@@ -1,14 +1,14 @@
-# image-downloader
+# Node Image Downloader
 A Nodejs module for downloading image to disk from a given URL
 
 [![Build Status](https://travis-ci.org/demsking/image-downloader.svg?branch=master)](https://travis-ci.org/demsking/image-downloader) [![Known Vulnerabilities](https://snyk.io/test/github/demsking/image-downloader/badge.svg)](https://snyk.io/test/github/demsking/image-downloader) [![Coverage Status](https://coveralls.io/repos/github/demsking/image-downloader/badge.svg?branch=master)](https://coveralls.io/github/demsking/image-downloader?branch=master)
 
-# Install
+## Install
 ```sh
 npm install --save image-downloader
 ```
 
-# Usage with Promise
+## Usage with Promise
 ```js
 const download = require('image-downloader')
 
@@ -39,7 +39,7 @@ download.image(options)
   })
 ```
 
-# Usage with async/await
+## Usage with async/await
 ```js
 const options = {
   url: 'http://someurl.com/image.jpg',
@@ -58,7 +58,16 @@ async function downloadIMG() {
 downloadIMG()
 ```
 
-# Previous API (deprecated)
+## Options
+- **url** (*required*) - the image URL to download
+- **dest** (*required*) - the image destination. Can be a directory or a filename
+- **headers** - HTTP headers (default: {})
+- **followRedirect** - follow HTTP 3xx responses as redirects (default: true)
+- **followAllRedirects** - follow non-GET HTTP 3xx responses as redirects (default: false)
+- **maxRedirects** - the maximum number of redirects to follow (default: 10)
+- **timeout** - integer containing the number of milliseconds to wait for a server to send response headers (and start the response body) before aborting the request
+
+## Previous API (deprecated)
 Previously `image-downloader` used a callback model. This still working, but its deprecated.
 
 ```js

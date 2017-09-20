@@ -8,6 +8,15 @@ A Nodejs module for downloading image to disk from a given URL
 npm install --save image-downloader
 ```
 
+## Options
+- **url** (*required*) - the image URL to download
+- **dest** (*required*) - the image destination. Can be a directory or a filename (see usage bellow)
+- **headers** - HTTP headers (default: {})
+- **followRedirect** - follow HTTP 3xx responses as redirects (default: true)
+- **followAllRedirects** - follow non-GET HTTP 3xx responses as redirects (default: false)
+- **maxRedirects** - the maximum number of redirects to follow (default: 10)
+- **timeout** - integer containing the number of milliseconds to wait for a server to send response headers (and start the response body) before aborting the request
+
 ## Usage with Promise
 ```js
 const download = require('image-downloader')
@@ -57,15 +66,6 @@ async function downloadIMG() {
 
 downloadIMG()
 ```
-
-## Options
-- **url** (*required*) - the image URL to download
-- **dest** (*required*) - the image destination. Can be a directory or a filename
-- **headers** - HTTP headers (default: {})
-- **followRedirect** - follow HTTP 3xx responses as redirects (default: true)
-- **followAllRedirects** - follow non-GET HTTP 3xx responses as redirects (default: false)
-- **maxRedirects** - the maximum number of redirects to follow (default: 10)
-- **timeout** - integer containing the number of milliseconds to wait for a server to send response headers (and start the response body) before aborting the request
 
 ## Previous API (deprecated)
 Previously `image-downloader` used a callback model. This still working, but its deprecated.

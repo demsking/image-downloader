@@ -11,51 +11,59 @@ const onError = (err, done) => {
   throw err
 }
 
-const downloader = ({ url, dest, done }) => {
-  if (!url) {
+const downloader = (options = {}) => {
+  if (!options.url) {
     throw new Error('The option url is required')
   }
 
-  if (!dest) {
+  if (!options.dest) {
     throw new Error('The option dest is required')
   }
 
-  request({ url: url, encoding: null }, (err, res, body) => {
+  options = Object.assign({}, options)
+
+  const done = options.done
+
+  delete options.done
+  options.encoding = null
+
+  request(options, (err, res, body) => {
     if (err) {
       return onError(err, done)
     }
 
     if (body && res.statusCode === 200) {
-      if (!path.extname(dest)) {
-        dest = path.join(dest, path.basename(url))
+      if (!path.extname(options.dest)) {
+        options.dest = path.join(options.dest, path.basename(options.url))
       }
 
-      fs.writeFile(dest, body, 'binary', (err) => {
+      fs.writeFile(options.dest, body, 'binary', (err) => {
         if (err) {
           return onError(err, done)
         }
-        done && done(false, dest, body)
+
+        if (typeof done === 'function') {
+          done(false, options.dest, body)
+        }
       })
     } else {
       if (!body) {
-        return onError(new Error('Image loading error - empty body. URL: ' + url), done)
+        return onError(new Error(`Image loading error - empty body. URL: ${options.url}`), done)
       }
-      onError(new Error('Image loading error - ' + res.statusCode + '. URL: ' + url), done)
+      onError(new Error(`Image loading error - ${res.statusCode}. URL: ${options.url}`), done)
     }
   })
 }
 
-downloader.image = ({ url, dest }) => new Promise((resolve, reject) => {
-  downloader({
-    url,
-    dest,
-    done: (err, dest, body) => {
-      if (err) {
-        return reject(err)
-      }
-      resolve({ filename: dest, image: body })
+downloader.image = (options = {}) => new Promise((resolve, reject) => {
+  options.done = (err, dest, body) => {
+    if (err) {
+      return reject(err)
     }
-  })
+    resolve({ filename: dest, image: body })
+  }
+
+  downloader(options)
 })
 
 module.exports = downloader

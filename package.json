@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/demsking/image-downloader#readme",
   "dependencies": {
-    "request": "^2.85.^"
+    "request": "^2.*"
   },
   "devDependencies": {
     "coveralls": "^2.13.1",

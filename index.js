@@ -32,7 +32,7 @@ const downloader = (options = {}) => {
       return onError(err, done)
     }
 
-    if (body && res.statusCode === 200) {
+    if (body && (res.statusCode === 200 || res.statusCode === 201)) {
       if (!path.extname(options.dest)) {
         options.dest = path.join(options.dest, path.basename(options.url))
       }

@@ -30,8 +30,9 @@ const options = {
 download.image(options)
   .then(({ filename, image }) => {
     console.log('File saved to', filename)
-  }).catch((err) => {
-    throw err
+  })
+  .catch((err) => {
+    console.error(err)
   })
 
 // Download to a directory and save with an another filename
@@ -43,8 +44,9 @@ options = {
 download.image(options)
   .then(({ filename, image }) => {
     console.log('File saved to', filename)
-  }).catch((err) => {
-    throw err
+  })
+  .catch((err) => {
+    console.error(err)
   })
 ```
 
@@ -60,7 +62,7 @@ async function downloadIMG() {
     const { filename, image } = await download.image(options)
     console.log(filename) // => /path/to/dest/image.jpg 
   } catch (e) {
-    throw e
+    console.error(e)
   }
 }
 
@@ -84,6 +86,7 @@ const options = {
     console.log('File saved to', filename)
   }
 }
+
 downloader(options)
 
 // Download to a directory and save with an another filename
@@ -97,6 +100,7 @@ options = {
     console.log('File saved to', filename)
   }
 }
+
 downloader(options)
 ```
 

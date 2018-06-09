@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/demsking/image-downloader.git"
+    "url": "git+https://gitlab.com/demsking/image-downloader.git"
   },
   "keywords": [
     "image",
@@ -29,9 +29,9 @@
   "author": "Sébastien Demanou",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/demsking/image-downloader/issues"
+    "url": "https://gitlab.com/demsking/image-downloader/issues"
   },
-  "homepage": "https://github.com/demsking/image-downloader#readme",
+  "homepage": "https://gitlab.com/demsking/image-downloader",
   "dependencies": {
     "request": "^2.87.0"
   },

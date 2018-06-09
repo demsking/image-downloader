@@ -1,7 +1,7 @@
 # Node Image Downloader
-A Nodejs module for downloading image to disk from a given URL
+A Node module for downloading image to disk from a given URL
 
-[![Build Status](https://travis-ci.org/demsking/image-downloader.svg?branch=master)](https://travis-ci.org/demsking/image-downloader) [![Known Vulnerabilities](https://snyk.io/test/github/demsking/image-downloader/badge.svg)](https://snyk.io/test/github/demsking/image-downloader) [![Coverage Status](https://coveralls.io/repos/github/demsking/image-downloader/badge.svg?branch=master)](https://coveralls.io/github/demsking/image-downloader?branch=master)
+[![npm](https://img.shields.io/npm/v/image-downloader.svg)](https://www.npmjs.com/package/image-downloader) [![Build status](https://gitlab.com/demsking/image-downloader/badges/master/build.svg)](https://gitlab.com/demsking/image-downloader/commits/master) [![Test coverage](https://gitlab.com/demsking/image-downloader/badges/master/coverage.svg)](https://gitlab.com/demsking/image-downloader/pipelines)
 
 ## Install
 ```sh
@@ -30,8 +30,9 @@ const options = {
 download.image(options)
   .then(({ filename, image }) => {
     console.log('File saved to', filename)
-  }).catch((err) => {
-    throw err
+  })
+  .catch((err) => {
+    console.error(err)
   })
 
 // Download to a directory and save with an another filename
@@ -43,8 +44,9 @@ options = {
 download.image(options)
   .then(({ filename, image }) => {
     console.log('File saved to', filename)
-  }).catch((err) => {
-    throw err
+  })
+  .catch((err) => {
+    console.error(err)
   })
 ```
 
@@ -60,7 +62,7 @@ async function downloadIMG() {
     const { filename, image } = await download.image(options)
     console.log(filename) // => /path/to/dest/image.jpg 
   } catch (e) {
-    throw e
+    console.error(e)
   }
 }
 
@@ -84,6 +86,7 @@ const options = {
     console.log('File saved to', filename)
   }
 }
+
 downloader(options)
 
 // Download to a directory and save with an another filename
@@ -97,9 +100,10 @@ options = {
     console.log('File saved to', filename)
   }
 }
+
 downloader(options)
 ```
 
 ## License
 
-Under the MIT license. See [LICENSE](https://github.com/demsking/image-downloader/blob/master/LICENSE) file for more details.
+Under the MIT license. See [LICENSE](https://gitlab.com/demsking/image-downloader/blob/master/LICENSE) file for more details.

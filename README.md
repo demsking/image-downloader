@@ -1,7 +1,7 @@
 # Node Image Downloader
-A Nodejs module for downloading image to disk from a given URL
+A Node module for downloading image to disk from a given URL
 
-[![Build Status](https://travis-ci.org/demsking/image-downloader.svg?branch=master)](https://travis-ci.org/demsking/image-downloader) [![Known Vulnerabilities](https://snyk.io/test/github/demsking/image-downloader/badge.svg)](https://snyk.io/test/github/demsking/image-downloader) [![Coverage Status](https://coveralls.io/repos/github/demsking/image-downloader/badge.svg?branch=master)](https://coveralls.io/github/demsking/image-downloader?branch=master)
+[![npm](https://img.shields.io/npm/v/image-downloader.svg)](https://www.npmjs.com/package/image-downloader) [![Build status](https://gitlab.com/demsking/image-downloader/badges/master/build.svg)](https://gitlab.com/demsking/image-downloader/commits/master) [![Test coverage](https://gitlab.com/demsking/image-downloader/badges/master/coverage.svg)](https://gitlab.com/demsking/image-downloader/pipelines)
 
 ## Install
 ```sh

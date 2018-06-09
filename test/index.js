@@ -100,14 +100,14 @@ describe('download an image', () => {
   })
 
   it('should failed with an I/O error', (done) => {
-    download({
+    const options = {
       url: 'http://someurl.com/image-success.jpg',
-      dest: '/root/an/non/existence/dest',
-      done: (err, filename, image) => {
-        assert.equal(err instanceof Error, true)
-        done()
-      }
-    })
+      dest: '/root/an/non/existence/dest'
+    }
+
+    download.image(options)
+      .then(() => done(new Error('should failed with an I/O error')))
+      .catch(() => done())
   })
 
   it('should throw on failure', (done) => {

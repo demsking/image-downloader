@@ -102,4 +102,4 @@ downloader(options)
 
 ## License
 
-Under the MIT license. See [LICENSE](https://github.com/demsking/image-downloader/blob/master/LICENSE) file for more details.
+Under the MIT license. See [LICENSE](https://gitlab.com/demsking/image-downloader/blob/master/LICENSE) file for more details.

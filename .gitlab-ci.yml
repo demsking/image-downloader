@@ -20,6 +20,14 @@ test on nodejs lts 8:
     - npm test
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
 
+test on latest nodejs:
+  stage: test
+  image: node:latest
+  script:
+    - npm install
+    - npm test
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+
 publish to npm:
   stage: publish
   only:

@@ -39,6 +39,7 @@ test on nodejs 8:
 test on latest nodejs:
   stage: test
   script:
+    - npm ci
     - npm test
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
 

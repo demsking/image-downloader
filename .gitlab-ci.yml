@@ -29,7 +29,7 @@ npm outdated:
 security scan:
   stage: test
   script:
-    - npm audit
+    - npm audit --only=prod
   allow_failure: true
 
 test on nodejs 6:
@@ -51,6 +51,16 @@ test on latest nodejs:
   script:
     - npm test
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+
+package:
+  stage: publish
+  only:
+    - tags
+  script:
+    - npm pack
+  artifacts:
+    paths:
+      - ./*.tgz
 
 publish:
   stage: publish

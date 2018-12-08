@@ -137,4 +137,13 @@ describe('download an image', () => {
       done()
     })
   })
+
+  it('should save image with a complex url params', () => {
+    return download.image({
+      url: 'http://someurl.com/success-image-with-complex-params.jpg?_nc_cat=1&_nc_ht=scontent.fdad3-1.fna&oh=88171697ef1cf5baf3f887436259273d&oe=5CAD866C',
+      dest: '/tmp'
+    }).then(({ filename }) => {
+      assert.equal(filename, '/tmp/success-image-with-complex-params.jpg')
+    })
+  })
 })

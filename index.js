@@ -34,7 +34,10 @@ const downloader = (options = {}) => {
 
     if (body && (res.statusCode === 200 || res.statusCode === 201)) {
       if (!path.extname(options.dest)) {
-        options.dest = path.join(options.dest, path.basename(options.url))
+        const url = require('url')
+        const pathname = url.parse(options.url).pathname
+
+        options.dest = path.join(options.dest, path.basename(pathname))
       }
 
       fs.writeFile(options.dest, body, 'binary', (err) => {

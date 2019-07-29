@@ -7,8 +7,6 @@
     "node": ">=6.10.1"
   },
   "scripts": {
-    "prepublish": "npm test",
-    "pretest": "npm run lint",
     "test": "jest --coverage",
     "lint": "standard"
   },

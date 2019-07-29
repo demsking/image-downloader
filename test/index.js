@@ -84,6 +84,22 @@ describe('download an image', () => {
     })
   })
 
+  it('should save image with options.extractFilename and a defined options.dest without file extension', (done) => {
+    download({
+      url: 'http://someurl.com/image-success.jpg',
+      dest: '/tmp/image-newname',
+      extractFilename: false,
+      done: (err, filename, image) => {
+        if (err) {
+          throw err
+        }
+        assert.doesNotThrow(() => fs.accessSync(filename), Error)
+        assert.equal(filename, '/tmp/image-newname')
+        done()
+      }
+    })
+  })
+
   it('should save image without a callback', () => {
     download({
       url: 'http://someurl.com/image-success.jpg',

@@ -13,6 +13,7 @@ code quality:
 npm outdated:
   stage: test
   script:
+    - npm ci
     - npm outdated
   allow_failure: true
 

@@ -1,10 +1,18 @@
+/* eslint-disable dot-location */
+/* eslint-disable no-sync */
+/* eslint-disable sort-keys */
+/* eslint-disable wrap-regex */
+/* eslint-disable arrow-body-style */
+/* eslint-disable max-lines-per-function */
+/* eslint-disable require-unicode-regexp */
+
 'use strict'
 
 const fs = require('fs')
 const download = require('..')
 const assert = require('assert')
 
-require('request').Request = function ({ url, callback }) {
+require('request').Request = function Request ({ url, callback }) {
   if (/error/.test(url)) {
     return callback(new Error())
   }
@@ -20,7 +28,7 @@ require('request').Request = function ({ url, callback }) {
   callback(null, { statusCode: 404 }, 'non empty body')
 }
 
-/* global describe it */
+/* global describe it expect */
 
 describe('options', () => {
   it('should failed with !options.url === true', (done) => {
@@ -51,6 +59,7 @@ describe('download an image', () => {
         }
         assert.doesNotThrow(() => fs.accessSync(filename), Error)
         assert.equal(filename, '/tmp/image success.jpg')
+        expect(image).toBeDefined()
         done()
       }
     })
@@ -65,6 +74,7 @@ describe('download an image', () => {
           throw err
         }
         assert.doesNotThrow(() => fs.accessSync(filename), Error)
+        expect(image).toBeDefined()
         done()
       }
     })
@@ -79,6 +89,7 @@ describe('download an image', () => {
           throw err
         }
         assert.doesNotThrow(() => fs.accessSync(filename), Error)
+        expect(image).toBeDefined()
         done()
       }
     })
@@ -95,6 +106,7 @@ describe('download an image', () => {
         }
         assert.doesNotThrow(() => fs.accessSync(filename), Error)
         assert.equal(filename, '/tmp/image-newname')
+        expect(image).toBeDefined()
         done()
       }
     })
@@ -111,7 +123,7 @@ describe('download an image', () => {
     download({
       url: 'http://someurl.com/image-error.jpg',
       dest: '/tmp',
-      done: (err, filename, image) => {
+      done: (err) => {
         assert.equal(err instanceof Error, true)
         done()
       }
@@ -123,6 +135,7 @@ describe('download an image', () => {
       url: 'http://someurl.com/image-empty-body.jpg',
       dest: '/tmp',
       done: (err, filename, image) => {
+        expect(filename).toBeUndefined()
         assert.equal(image, null)
         assert.equal(err instanceof Error, true)
         done()
@@ -155,6 +168,7 @@ describe('download an image', () => {
       dest: '/tmp'
     }).then(({ filename, image }) => {
       assert.doesNotThrow(() => fs.accessSync(filename), Error)
+      expect(image).toBeDefined()
       done()
     })
   })

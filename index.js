@@ -13,14 +13,14 @@ const onError = (err, done) => {
 
 const downloader = (options = {}) => {
   if (!options.url) {
-    throw new Error('The option url is required')
+    throw new Error('The options.url is required')
   }
 
   if (!options.dest) {
-    throw new Error('The option dest is required')
+    throw new Error('The options.dest is required')
   }
 
-  options = Object.assign({}, options)
+  options = Object.assign({ extractFilename: true }, options)
 
   const done = options.done
 
@@ -33,11 +33,15 @@ const downloader = (options = {}) => {
     }
 
     if (body && (res.statusCode === 200 || res.statusCode === 201)) {
-      if (!path.extname(options.dest)) {
-        const url = require('url')
-        const pathname = url.parse(options.url).pathname
+      if (options.extractFilename) {
+        if (!path.extname(options.dest)) {
+          const url = require('url')
+          const pathname = url.parse(options.url).pathname
+          const basename = path.basename(pathname)
+          const decodedBasename = decodeURIComponent(basename)
 
-        options.dest = path.join(options.dest, path.basename(pathname))
+          options.dest = path.join(options.dest, decodedBasename)
+        }
       }
 
       fs.writeFile(options.dest, body, 'binary', (err) => {

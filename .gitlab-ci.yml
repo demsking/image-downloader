@@ -55,8 +55,6 @@ coverage report:
 
 package:
   stage: publish
-  only:
-    - tags
   script:
     - npm pack
   artifacts:

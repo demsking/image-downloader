@@ -43,6 +43,21 @@ describe('options', () => {
 describe('download an image', () => {
   it('should save image with the original filename', (done) => {
     download({
+      url: 'http://someurl.com/image%20success.jpg',
+      dest: '/tmp',
+      done: (err, filename, image) => {
+        if (err) {
+          throw err
+        }
+        assert.doesNotThrow(() => fs.accessSync(filename), Error)
+        assert.equal(filename, '/tmp/image success.jpg')
+        done()
+      }
+    })
+  })
+
+  it('should save image with the decoded filename', (done) => {
+    download({
       url: 'http://someurl.com/image-success.jpg',
       dest: '/tmp',
       done: (err, filename, image) => {

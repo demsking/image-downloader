@@ -36,8 +36,10 @@ const downloader = (options = {}) => {
       if (!path.extname(options.dest)) {
         const url = require('url')
         const pathname = url.parse(options.url).pathname
+        const basename = path.basename(pathname)
+        const decodedBasename = decodeURIComponent(basename)
 
-        options.dest = path.join(options.dest, path.basename(pathname))
+        options.dest = path.join(options.dest, decodedBasename)
       }
 
       fs.writeFile(options.dest, body, 'binary', (err) => {

@@ -7,6 +7,7 @@ module.exports = {
   collectCoverage: true,
   collectCoverageFrom: [
     'index.js',
+    'lib/**',
     '!.eslintrc.js',
     '!test/**',
     '!demo/**',

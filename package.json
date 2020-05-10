@@ -28,8 +28,8 @@
   "homepage": "https://gitlab.com/demsking/image-downloader",
   "dependencies": {},
   "devDependencies": {
-    "eslint": "^6.8.0",
-    "jest": "^24.9.0",
+    "eslint": "^7.0.0",
+    "jest": "^26.0.1",
     "nock": "^12.0.3"
   }
 }

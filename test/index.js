@@ -10,7 +10,7 @@
 'use strict';
 
 const fs = require('fs');
-const path = require('fs');
+const path = require('path');
 const nock = require('nock');
 
 nock('http://someurl.com')

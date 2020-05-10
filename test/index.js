@@ -5,24 +5,25 @@
 /* eslint-disable arrow-body-style */
 /* eslint-disable max-lines-per-function */
 /* eslint-disable require-unicode-regexp */
-/* global describe it expect */
+/* global describe it expect __dirname */
 
 'use strict';
 
 const fs = require('fs');
+const path = require('fs');
 const nock = require('nock');
 
 nock('http://someurl.com')
   .get(/success/)
   .times(100)
-  .replyWithFile(200, __dirname + '/fixtures/android.jpg', {
+  .replyWithFile(200, path.join(__dirname, 'fixtures/android.jpg'), {
     'Content-Type': 'image/jpeg'
   });
 
 nock('https://someurl.com')
   .get(/success/)
   .times(100)
-  .replyWithFile(200, __dirname + '/fixtures/android.jpg', {
+  .replyWithFile(200, path.join(__dirname, 'fixtures/android.jpg'), {
     'Content-Type': 'image/jpeg'
   });
 

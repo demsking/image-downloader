@@ -3,7 +3,7 @@
 const path = require('path');
 const request = require('./lib/request');
 
-module.exports = (options = {}) => {
+module.exports.image = (options = {}) => {
   if (!options.url) {
     return Promise.reject(new Error('The options.url is required'));
   }

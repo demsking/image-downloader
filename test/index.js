@@ -27,22 +27,30 @@ nock('https://someurl.com')
     'Content-Type': 'image/jpeg'
   });
 
+nock('https://someurl.com')
+  .get(/timeout/)
+  .socketDelay(5000)
+  .times(100)
+  .replyWithFile(200, path.join(__dirname, 'fixtures/android.jpg'), {
+    'Content-Type': 'image/jpeg'
+  });
+
 nock('http://someurl.com')
   .get(/error/)
   .times(100)
-  .replyWithError('something awful happened');
+  .reply(404, 'Not Found');
 
 const download = require('..');
 
 describe('options', () => {
   it('should failed with !options.url === true', (done) => {
-    download({ url: null, dest: '/tmp' })
+    download.image({ url: null, dest: '/tmp' })
       .then(() => done(new Error('Should throw an error')))
       .catch(() => done());
   });
 
   it('should failed with !options.dest === true', (done) => {
-    download({ url: 'http://someurl.com/image.jpg', dest: null })
+    download.image({ url: 'http://someurl.com/image.jpg', dest: null })
       .then(() => done(new Error('Should throw an error')))
       .catch(() => done());
   });
@@ -50,28 +58,37 @@ describe('options', () => {
 
 describe('download an image', () => {
   it('should save image with the original filename', () => {
-    return download({ url: 'http://someurl.com/image%20success.png', dest: '/tmp' }).then(({ filename }) => {
+    return download.image({ url: 'http://someurl.com/image%20success.png', dest: '/tmp' }).then(({ filename }) => {
       expect(filename).toEqual('/tmp/image success.png');
       expect(() => fs.accessSync(filename)).not.toThrow();
     });
   });
 
+  it('should failed with too short timeout', (done) => {
+    download.image({ url: 'https://someurl.com/image-timeout.png', timeout: 2000, dest: '/tmp' })
+      .then(() => done(new Error('Should throw an error')))
+      .catch((err) => {
+        expect(err).toBeInstanceOf(Error);
+        done();
+      });
+  });
+
   it('should succeed with HTTPS', () => {
-    return download({ url: 'https://someurl.com/image%20success.png', dest: '/tmp' }).then(({ filename }) => {
+    return download.image({ url: 'https://someurl.com/image%20success.png', dest: '/tmp' }).then(({ filename }) => {
       expect(filename).toEqual('/tmp/image success.png');
       expect(() => fs.accessSync(filename)).not.toThrow();
     });
   });
 
   it('should save image with the decoded filename', () => {
-    return download({ url: 'http://someurl.com/image-success.png', dest: '/tmp' }).then(({ filename }) => {
+    return download.image({ url: 'http://someurl.com/image-success.png', dest: '/tmp' }).then(({ filename }) => {
       expect(filename).toEqual('/tmp/image-success.png');
       expect(() => fs.accessSync(filename)).not.toThrow();
     });
   });
 
   it('should save image with an another filename', () => {
-    return download({ url: 'http://someurl.com/image-success.jpg', dest: '/tmp/image-newname.jpg' }).then(({ filename }) => {
+    return download.image({ url: 'http://someurl.com/image-success.jpg', dest: '/tmp/image-newname.jpg' }).then(({ filename }) => {
       expect(filename).toEqual('/tmp/image-newname.jpg');
       expect(() => fs.accessSync(filename)).not.toThrow();
     });
@@ -84,14 +101,14 @@ describe('download an image', () => {
       extractFilename: false
     };
 
-    return download(options).then(({ filename }) => {
+    return download.image(options).then(({ filename }) => {
       expect(filename).toEqual('/tmp/image-newname');
       expect(() => fs.accessSync(filename)).not.toThrow();
     });
   });
 
   it('should failed with an error', (done) => {
-    download({ url: 'http://someurl.com/image-error.jpg', dest: '/tmp' })
+    download.image({ url: 'http://someurl.com/image-error.jpg', dest: '/tmp' })
       .then(() => done(new Error('Should throw an error')))
       .catch((err) => {
         expect(err).toBeInstanceOf(Error);
@@ -105,7 +122,7 @@ describe('download an image', () => {
       dest: '/tmp'
     };
 
-    return download(options).then(({ filename }) => {
+    return download.image(options).then(({ filename }) => {
       expect(filename).toBeDefined();
       expect(() => fs.accessSync(filename)).not.toThrow();
     });

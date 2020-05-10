@@ -21,7 +21,7 @@ security scan:
   stage: test
   script:
     - npm audit --production
-  allow_failure: true
+  allow_failure: false
 
 test on nodejs lts:
   stage: test

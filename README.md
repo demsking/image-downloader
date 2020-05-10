@@ -24,6 +24,14 @@ npm install --save image-downloader
 
 For advanced options, see [Node.js `http.request()`'s options documentation](https://nodejs.org/dist/latest-v12.x/docs/api/http.html#http_http_request_url_options_callback)
 
+## Syntax
+
+```ts
+declare module download {
+  image(options: Options): Promise<{ filename: string }>;
+}
+```
+
 ## Usage
 
 Download to a directory and save with the original filename

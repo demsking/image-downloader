@@ -271,7 +271,10 @@ module.exports = {
     ],
     'sort-vars': 'error',
     'space-before-blocks': 'error',
-    'space-before-function-paren': 'error',
+    'space-before-function-paren': [
+      'error',
+      'never',
+    ],
     'space-in-parens': [
       'error',
       'never',
@@ -279,7 +282,7 @@ module.exports = {
     'space-infix-ops': 'error',
     'space-unary-ops': 'error',
     'spaced-comment': 'error',
-    'strict': 'error',
+    'strict': 'off',
     'switch-colon-spacing': 'error',
     'symbol-description': 'error',
     'template-curly-spacing': [

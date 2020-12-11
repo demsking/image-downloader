@@ -39,6 +39,7 @@ nock('http://someurl.com')
   .reply(404, 'Not Found');
 
 const download = require('..');
+const { TimeoutError } = require('../lib/TimeoutError');
 
 describe('options', () => {
   it('should failed with !options.url === true', (done) => {
@@ -66,7 +67,7 @@ describe('download an image', () => {
     download.image({ url: 'https://someurl.com/image-timeout.png', timeout: 2000, dest: '/tmp' })
       .then(() => done(new Error('Should throw an error')))
       .catch((err) => {
-        expect(err).toBeInstanceOf(Error);
+        expect(err).toBeInstanceOf(TimeoutError);
         done();
       });
   });

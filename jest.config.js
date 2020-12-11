@@ -1,9 +1,5 @@
+/* eslint-disable strict */
 module.exports = {
-  expand: true,
-  notify: true,
-  testMatch: [
-    '<rootDir>/test/*.js'
-  ],
   collectCoverage: true,
   collectCoverageFrom: [
     'index.js',
@@ -13,10 +9,13 @@ module.exports = {
     '!demo/**',
     '!dist/**',
     '!coverage/**',
-    '!**/node_modules/**'
+    '!**/node_modules/**',
   ],
+  expand: true,
   moduleFileExtensions: [
     'js',
-    'json'
-  ]
+    'json',
+  ],
+  notify: true,
+  testMatch: ['<rootDir>/test/*.js'],
 }

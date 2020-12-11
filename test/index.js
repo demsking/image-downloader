@@ -1,7 +1,5 @@
-/* eslint-disable dot-location */
 /* eslint-disable no-sync */
 /* eslint-disable sort-keys */
-/* eslint-disable wrap-regex */
 /* eslint-disable arrow-body-style */
 /* eslint-disable max-lines-per-function */
 /* eslint-disable require-unicode-regexp */
@@ -17,22 +15,22 @@ nock('http://someurl.com')
   .get(/success/)
   .times(100)
   .replyWithFile(200, path.join(__dirname, 'fixtures/android.jpg'), {
-    'Content-Type': 'image/jpeg'
+    'Content-Type': 'image/jpeg',
   });
 
 nock('https://someurl.com')
   .get(/success/)
   .times(100)
   .replyWithFile(200, path.join(__dirname, 'fixtures/android.jpg'), {
-    'Content-Type': 'image/jpeg'
+    'Content-Type': 'image/jpeg',
   });
 
 nock('https://someurl.com')
   .get(/timeout/)
-  .socketDelay(5000)
+  .delayConnection(5000)
   .times(100)
   .replyWithFile(200, path.join(__dirname, 'fixtures/android.jpg'), {
-    'Content-Type': 'image/jpeg'
+    'Content-Type': 'image/jpeg',
   });
 
 nock('http://someurl.com')
@@ -41,6 +39,7 @@ nock('http://someurl.com')
   .reply(404, 'Not Found');
 
 const download = require('..');
+const { TimeoutError } = require('../lib/TimeoutError');
 
 describe('options', () => {
   it('should failed with !options.url === true', (done) => {
@@ -68,7 +67,7 @@ describe('download an image', () => {
     download.image({ url: 'https://someurl.com/image-timeout.png', timeout: 2000, dest: '/tmp' })
       .then(() => done(new Error('Should throw an error')))
       .catch((err) => {
-        expect(err).toBeInstanceOf(Error);
+        expect(err).toBeInstanceOf(TimeoutError);
         done();
       });
   });
@@ -98,7 +97,7 @@ describe('download an image', () => {
     const options = {
       url: 'http://someurl.com/image-success.jpg',
       dest: '/tmp/image-newname',
-      extractFilename: false
+      extractFilename: false,
     };
 
     return download.image(options).then(({ filename }) => {
@@ -119,7 +118,7 @@ describe('download an image', () => {
   it('should save image with a complex url params', () => {
     const options = {
       url: 'http://someurl.com/success-image-with-complex-params.jpg?_nc_cat=1&_nc_ht=scontent.fdad3-1.fna&oh=88171697ef1cf5baf3f887436259273d&oe=5CAD866C',
-      dest: '/tmp'
+      dest: '/tmp',
     };
 
     return download.image(options).then(({ filename }) => {

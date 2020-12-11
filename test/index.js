@@ -27,7 +27,7 @@ nock('https://someurl.com')
 
 nock('https://someurl.com')
   .get(/timeout/)
-  .socketDelay(5000)
+  .delayConnection(5000)
   .times(100)
   .replyWithFile(200, path.join(__dirname, 'fixtures/android.jpg'), {
     'Content-Type': 'image/jpeg',

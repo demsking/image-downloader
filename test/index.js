@@ -3,7 +3,7 @@
 /* eslint-disable arrow-body-style */
 /* eslint-disable max-lines-per-function */
 /* eslint-disable require-unicode-regexp */
-/* global describe it expect __dirname */
+/* global describe it expect */
 
 'use strict';
 
@@ -123,6 +123,15 @@ describe('download an image', () => {
 
     return download.image(options).then(({ filename }) => {
       expect(filename).toBeDefined();
+      expect(() => fs.accessSync(filename)).not.toThrow();
+    });
+  });
+});
+
+describe('Issues', () => {
+  it('#27 - dest: directory cannot contain a dot', () => {
+    return download.image({ url: 'http://someurl.com/image-success.png', dest: './test/fixtures/someurl.com' }).then(({ filename }) => {
+      expect(filename).toMatch(/test\/fixtures\/someurl\.com$/);
       expect(() => fs.accessSync(filename)).not.toThrow();
     });
   });

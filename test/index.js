@@ -127,3 +127,12 @@ describe('download an image', () => {
     });
   });
 });
+
+describe('Issues', () => {
+  it('#27 - dest: directory cannot contain a dot', () => {
+    return download.image({ url: 'http://someurl.com/image-success.png', dest: './test/fixtures/someurl.com' }).then(({ filename }) => {
+      expect(filename).toMatch(/test\/fixtures\/someurl\.com$/);
+      expect(() => fs.accessSync(filename)).not.toThrow();
+    });
+  });
+});

@@ -19,8 +19,12 @@ module.exports.image = ({ extractFilename = true, ...options } = {}) => {
       const basename = path.basename(pathname);
       const decodedBasename = decodeURIComponent(basename);
 
-      options.dest = path.resolve(options.dest, decodedBasename);
+      options.dest = path.join(options.dest, decodedBasename);
     }
+  }
+
+  if (!path.isAbsolute(options.dest)) {
+    options.dest = path.resolve(process.cwd(), options.dest);
   }
 
   return request(options);

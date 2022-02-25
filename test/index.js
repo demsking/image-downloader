@@ -3,7 +3,7 @@
 /* eslint-disable arrow-body-style */
 /* eslint-disable max-lines-per-function */
 /* eslint-disable require-unicode-regexp */
-/* global describe it expect __dirname */
+/* global describe it expect */
 
 'use strict';
 

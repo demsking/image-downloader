@@ -24,7 +24,7 @@ module.exports.image = ({ extractFilename = true, ...options } = {}) => {
   }
 
   if (!path.isAbsolute(options.dest)) {
-    options.dest = path.resolve(process.cwd(), options.dest);
+    options.dest = path.resolve(__dirname, options.dest);
   }
 
   return request(options);

@@ -16,6 +16,5 @@ module.exports = {
     'js',
     'json',
   ],
-  notify: true,
   testMatch: ['<rootDir>/test/*.js'],
 }

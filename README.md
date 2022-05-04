@@ -34,53 +34,53 @@ For advanced options, see [Node.js `http.request()`'s options documentation](htt
 Download to a directory and save with the original filename
 
 ```js
-const download = require('image-downloader')
+const download = require('image-downloader');
 
 const options = {
   url: 'http://someurl.com/image.jpg',
-  dest: '/path/to/dest'                // will be saved to /path/to/dest/image.jpg
-}
+  dest: '/path/to/dest',               // will be saved to /path/to/dest/image.jpg
+};
 
 download.image(options)
   .then(({ filename }) => {
-    console.log('Saved to', filename)  // saved to /path/to/dest/image.jpg
+    console.log('Saved to', filename); // saved to /path/to/dest/image.jpg
   })
-  .catch((err) => console.error(err))
+  .catch((err) => console.error(err));
 ```
 
 Download to a directory and save with an another filename
 
 ```js
-const download = require('image-downloader')
+const download = require('image-downloader');
 
 options = {
   url: 'http://someurl.com/image2.jpg',
-  dest: '/path/to/dest/photo.jpg'      // will be saved to /path/to/dest/photo.jpg
-}
+  dest: '/path/to/dest/photo.jpg',     // will be saved to /path/to/dest/photo.jpg
+};
 
 download.image(options)
   .then(({ filename }) => {
-    console.log('Saved to', filename)  // saved to /path/to/dest/photo.jpg
+    console.log('Saved to', filename); // saved to /path/to/dest/photo.jpg
   })
-  .catch((err) => console.error(err))
+  .catch((err) => console.error(err));
 ```
 
 Download with another filename without extension
 
 ```js
-const download = require('image-downloader')
+const download = require('image-downloader');
 
 options = {
   url: 'http://someurl.com/image3.jpg',
   dest: '/path/to/dest/photo',         // will be saved to /path/to/dest/photo
-  extractFilename: false
-}
+  extractFilename: false,
+};
 
 download.image(options)
   .then(({ filename }) => {
-    console.log('Saved to', filename)  // saved to /path/to/dest/photo
+    console.log('Saved to', filename), // saved to /path/to/dest/photo
   })
-  .catch((err) => console.error(err))
+  .catch((err) => console.error(err));
 ```
 
 ## Development Setup
@@ -99,6 +99,10 @@ download.image(options)
 
    > The next time your launch your terminal and enter the top-level of your
    > project, `direnv` will check for changes.
+
+## Contribute
+
+Please follow [CONTRIBUTING.md](https://gitlab.com/demsking/image-downloader/blob/master/CONTRIBUTING.md).
 
 ## License
 

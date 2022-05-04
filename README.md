@@ -24,13 +24,15 @@ npm install --save image-downloader
   `options.dest` without a file extension for example. (default: `true`)
 - **headers** - HTTP headers (default: `{}`)
 - **timeout** - milliseconds before a request times out
+- **maxRedirects** - the maximum number of allowed redirects; if exceeded, an
+  error will be emitted. (default: `21`)
 
 For advanced options, see [Node.js `http.request()`'s options documentation](https://nodejs.org/dist/latest-v12.x/docs/api/http.html#http_http_request_url_options_callback)
 
 ## Syntax
 
 ```ts
-declare module download {
+declare module 'image-downloader' {
   image(options: Options): Promise<{ filename: string }>;
 }
 ```

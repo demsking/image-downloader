@@ -27,7 +27,11 @@
     "url": "https://gitlab.com/demsking/image-downloader/issues"
   },
   "homepage": "https://gitlab.com/demsking/image-downloader",
+  "dependencies": {
+    "follow-redirects": "^1.15.0"
+  },
   "devDependencies": {
+    "@types/follow-redirects": "^1.14.1",
     "@typescript-eslint/eslint-plugin": "^5.18.0",
     "@typescript-eslint/parser": "^5.18.0",
     "eslint": "^8.13.0",

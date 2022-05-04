@@ -3,8 +3,8 @@
 A Node module for downloading image to disk from a given URL
 
 [![npm](https://img.shields.io/npm/v/image-downloader.svg)](https://www.npmjs.com/package/image-downloader)
-[![Build status](https://gitlab.com/demsking/image-downloader/badges/master/pipeline.svg)](https://gitlab.com/demsking/image-downloader/pipelines)
-[![Test coverage](https://gitlab.com/demsking/image-downloader/badges/master/coverage.svg)](https://gitlab.com/demsking/image-downloader/pipelines)
+[![Build status](https://gitlab.com/demsking/image-downloader/badges/main/pipeline.svg)](https://gitlab.com/demsking/image-downloader/pipelines)
+[![Test coverage](https://gitlab.com/demsking/image-downloader/badges/main/coverage.svg)](https://gitlab.com/demsking/image-downloader/pipelines)
 [![Buy me a beer](https://img.shields.io/badge/Buy%20me-a%20beer-1f425f.svg)](https://www.buymeacoffee.com/demsking)
 
 ## Install
@@ -102,8 +102,8 @@ download.image(options)
 
 ## Contribute
 
-Please follow [CONTRIBUTING.md](https://gitlab.com/demsking/image-downloader/blob/master/CONTRIBUTING.md).
+Please follow [CONTRIBUTING.md](https://gitlab.com/demsking/image-downloader/blob/main/CONTRIBUTING.md).
 
 ## License
 
-Under the MIT license. See [LICENSE](https://gitlab.com/demsking/image-downloader/blob/master/LICENSE) file for more details.
+Under the MIT license. See [LICENSE](https://gitlab.com/demsking/image-downloader/blob/main/LICENSE) file for more details.

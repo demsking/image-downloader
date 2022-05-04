@@ -1,5 +1,3 @@
-'use strict';
-
 const path = require('path');
 const request = require('./lib/request');
 
@@ -14,8 +12,8 @@ module.exports.image = ({ extractFilename = true, ...options } = {}) => {
 
   if (extractFilename) {
     if (!path.extname(options.dest)) {
-      const url = require('url');
-      const pathname = url.parse(options.url).pathname;
+      const url = new URL(options.url);
+      const pathname = url.pathname;
       const basename = path.basename(pathname);
       const decodedBasename = decodeURIComponent(basename);
 

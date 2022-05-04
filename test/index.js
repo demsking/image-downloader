@@ -38,6 +38,10 @@ nock('http://someurl.com')
   .times(100)
   .reply(404, 'Not Found');
 
+nock('http://cdn.shopify.com')
+  .get('/s/files/1/0516/7244/9178/products/SteelCutOats1.jpg')
+  .reply(301, '', { location: 'http://someurl.com/image-success.png' });
+
 const download = require('..');
 const { TimeoutError } = require('../lib/TimeoutError');
 
@@ -132,6 +136,13 @@ describe('Issues', () => {
   it('#27 - dest: directory cannot contain a dot', () => {
     return download.image({ url: 'http://someurl.com/image-success.png', dest: './test/fixtures/someurl.com' }).then(({ filename }) => {
       expect(filename).toMatch(/test\/fixtures\/someurl\.com$/);
+      expect(() => fs.accessSync(filename)).not.toThrow();
+    });
+  });
+
+  it('#29 - 301 status code while downloading image', () => {
+    return download.image({ url: 'http://cdn.shopify.com/s/files/1/0516/7244/9178/products/SteelCutOats1.jpg', dest: '/tmp/SteelCutOats1.jpg' }).then(({ filename }) => {
+      expect(filename).toMatch(/tmp\/SteelCutOats1\.jpg$/);
       expect(() => fs.accessSync(filename)).not.toThrow();
     });
   });

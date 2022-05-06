@@ -1,11 +1,9 @@
 test
 coverage
-.directory
-.eslintrc
-.gitignore
-.travis.yml
-Makefile
+.*
+*.yml
+*.yaml
 *.tgz
-/*.js
 *.bak
 *.config.js
+*.nix

@@ -3,14 +3,13 @@
 pkgs.mkShell {
   name = "image-downloader";
   nativeBuildInputs = [
-    pkgs.nodejs
+    pkgs.nodejs-16_x
   ];
   shellHook = ''
-    export NODE_PATH=$PWD/.nix-node;
-    export NPM_CONFIG_PREFIX=$PWD/.nix-node;
-    export PATH=$NODE_PATH/bin:$PATH;
-
     mkdir -p .nix-node
+    export NODE_PATH=$PWD/.nix-node
+    export PATH=$NODE_PATH/bin:$PATH
+
     npm config set prefix $NODE_PATH
   '';
 }

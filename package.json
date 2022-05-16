@@ -8,8 +8,8 @@
   },
   "scripts": {
     "test": "jest --coverage",
-    "lint": "eslint index.js index.d.ts test",
-    "lint:fix": "eslint --fix index.js index.d.ts test"
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
   },
   "repository": {
     "type": "git",
@@ -35,6 +35,9 @@
     "@typescript-eslint/eslint-plugin": "^5.18.0",
     "@typescript-eslint/parser": "^5.18.0",
     "eslint": "^8.13.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.22.1",
     "jest": "^28.0.3",
     "nock": "^13.0.5"
   }

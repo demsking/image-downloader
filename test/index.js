@@ -5,8 +5,6 @@
 /* eslint-disable require-unicode-regexp */
 /* global describe it expect */
 
-'use strict';
-
 const fs = require('fs');
 const path = require('path');
 const nock = require('nock');
@@ -43,7 +41,7 @@ nock('http://cdn.shopify.com')
   .reply(301, '', { location: 'http://someurl.com/image-success.png' });
 
 const download = require('..');
-const { TimeoutError } = require('../lib/TimeoutError');
+const { TimeoutError } = require('../lib/TimeoutError.js');
 
 describe('options', () => {
   it('should failed with !options.url === true', (done) => {
@@ -57,7 +55,7 @@ describe('options', () => {
       .then(() => done(new Error('Should throw an error')))
       .catch(() => done());
   });
-})
+});
 
 describe('download an image', () => {
   it('should save image with the original filename', () => {

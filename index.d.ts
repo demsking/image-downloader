@@ -31,13 +31,11 @@ declare module 'image-downloader' {
   }
 
   type DownloadResult = {
-
     /**
      * The downloaded filename
      */
     filename: string,
   };
 
-  // eslint-disable-next-line no-unused-vars
   function image(options: Options): Promise<DownloadResult>;
 }

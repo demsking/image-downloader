@@ -1,5 +1,5 @@
 const path = require('path');
-const request = require('./lib/request');
+const request = require('./lib/request.js');
 
 module.exports.image = ({ extractFilename = true, ...options } = {}) => {
   if (!options.url) {

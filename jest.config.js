@@ -17,4 +17,4 @@ module.exports = {
     'json',
   ],
   testMatch: ['<rootDir>/test/*.js'],
-}
+};

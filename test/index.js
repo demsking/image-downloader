@@ -144,4 +144,11 @@ describe('Issues', () => {
       expect(() => fs.accessSync(filename)).not.toThrow();
     });
   });
+
+  it('#30 - dot in dest directory name causes Error: EISDIR: illegal operation on a directory', () => {
+    return download.image({ url: 'http://someurl.com/image-success.png', dest: '/tmp/eco-nor.no' }).then(({ filename }) => {
+      expect(filename).toMatch(/tmp\/eco-nor\.no$/);
+      expect(() => fs.accessSync(filename)).not.toThrow();
+    });
+  });
 });

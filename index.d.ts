@@ -1,7 +1,7 @@
 declare module 'image-downloader' {
   import { RequestOptions } from 'http';
 
-  type Options = Pick<RequestOptions, 'headers' | 'auth' | 'agent' | 'timeout' | 'maxHeaderSize'> & {
+  type Options = Pick<RequestOptions, 'headers' | 'auth' | 'agent' | 'timeout'> & {
 
     /**
      * The image URL to download

@@ -3,11 +3,12 @@
 /* eslint-disable arrow-body-style */
 /* eslint-disable max-lines-per-function */
 /* eslint-disable require-unicode-regexp */
-/* global describe it expect */
+/* global describe it expect beforeEach afterEach */
 
 'use strict';
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const nock = require('nock');
 
@@ -41,6 +42,11 @@ nock('http://someurl.com')
 nock('http://cdn.shopify.com')
   .get('/s/files/1/0516/7244/9178/products/SteelCutOats1.jpg')
   .reply(301, '', { location: 'http://someurl.com/image-success.png' });
+
+nock('http://someurl.com')
+  .get(/%[0-9A-Fa-f]{2}/)
+  .times(200)
+  .reply(200, 'attacker-bytes', { 'Content-Type': 'image/jpeg' });
 
 const download = require('..');
 const { TimeoutError } = require('../lib/TimeoutError');
@@ -144,6 +150,83 @@ describe('Issues', () => {
     return download.image({ url: 'http://cdn.shopify.com/s/files/1/0516/7244/9178/products/SteelCutOats1.jpg', dest: '/tmp/SteelCutOats1.jpg' }).then(({ filename }) => {
       expect(filename).toMatch(/tmp\/SteelCutOats1\.jpg$/);
       expect(() => fs.accessSync(filename)).not.toThrow();
+    });
+  });
+});
+
+describe('path traversal protection (CWE-22)', () => {
+  let root;
+  let uploads;
+
+  beforeEach(() => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'image-downloader-'));
+    uploads = path.join(root, 'uploads');
+    fs.mkdirSync(uploads);
+  });
+
+  afterEach(() => {
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  const malicious = (url) => download.image({ url, dest: uploads });
+
+  it('keeps an encoded parent-directory segment inside dest', () => {
+    const sentinel = path.join(root, 'sentinel.txt');
+
+    fs.writeFileSync(sentinel, 'ORIGINAL');
+
+    return malicious('http://someurl.com/images/%2e%2e%2fsentinel.txt').then(({ filename }) => {
+      expect(filename).toEqual(path.join(uploads, 'sentinel.txt'));
+      expect(fs.readFileSync(filename, 'utf8')).toEqual('attacker-bytes');
+      expect(fs.readFileSync(sentinel, 'utf8')).toEqual('ORIGINAL');
+    });
+  });
+
+  it('keeps an encoded absolute path inside dest', () => {
+    return malicious('http://someurl.com/%2fetc%2fpasswd').then(({ filename }) => {
+      expect(filename).toEqual(path.join(uploads, 'passwd'));
+      expect(path.dirname(filename)).toEqual(uploads);
+    });
+  });
+
+  it('rejects a decoded basename of ".."', () => {
+    return expect(malicious('http://someurl.com/a%2f%2e%2e')).rejects.toMatchObject({ code: 'ERR_INVALID_FILENAME' });
+  });
+
+  it('rejects a decoded basename of "."', () => {
+    return expect(malicious('http://someurl.com/a%2f%2e')).rejects.toMatchObject({ code: 'ERR_INVALID_FILENAME' });
+  });
+
+  it('rejects a pathname without a file name', () => {
+    return expect(malicious('http://someurl.com/')).rejects.toMatchObject({ code: 'ERR_INVALID_FILENAME' });
+  });
+
+  it('rejects a malformed percent-encoded path instead of throwing', () => {
+    return expect(malicious('http://someurl.com/images/%E0%A4%A')).rejects.toMatchObject({ code: 'ERR_INVALID_FILENAME' });
+  });
+
+  it('rejects a NUL byte in the file name', () => {
+    return expect(malicious('http://someurl.com/images/image%00.jpg')).rejects.toMatchObject({ code: 'ERR_INVALID_FILENAME' });
+  });
+
+  it('rejects an invalid url instead of throwing', () => {
+    return download.image({ url: 'not a valid url', dest: uploads })
+      .catch((error) => error)
+      .then((error) => {
+        expect(error).toBeDefined();
+        expect(error.message).toMatch(/Invalid URL/);
+      });
+  });
+
+  it('does not decode the file name twice', () => {
+    return malicious('http://someurl.com/images/%252e%252e%252fsentinel.txt').then(({ filename }) => {
+      expect(filename).toEqual(path.join(uploads, '%2e%2e%2fsentinel.txt'));
+    });
+  });
+
+  it('never escapes dest through an encoded Windows separator', () => {
+    return malicious('http://someurl.com/images/%2e%2e%5csentinel.txt').then(({ filename }) => {
+      expect(path.dirname(filename)).toEqual(uploads);
     });
   });
 });

@@ -1,0 +1,6 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.18.3/.schema/devbox.schema.json",
+  "packages": [
+    "nodejs@16"
+  ]
+}

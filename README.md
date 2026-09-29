@@ -15,8 +15,8 @@ npm install --save image-downloader
 
 ## Options
 
-- **url** (*required*) - the image URL to download
-- **dest** (*required*) - the image destination. Can be a directory or a
+- **url** (_required_) - the image URL to download
+- **dest** (_required_) - the image destination. Can be a directory or a
   filename. If a directory is given, ID will automatically extract the image
   filename from `options.url` (see usage bellow)
 - **extractFilename** - boolean indicating whether the image filename will be
@@ -34,16 +34,17 @@ For advanced options, see [Node.js `http.request()`'s options documentation](htt
 Download to a directory and save with the original filename
 
 ```js
-const download = require('image-downloader');
+const download = require("image-downloader");
 
 const options = {
-  url: 'http://someurl.com/image.jpg',
-  dest: '/path/to/dest',               // will be saved to /path/to/dest/image.jpg
+  url: "http://someurl.com/image.jpg",
+  dest: "/path/to/dest", // will be saved to /path/to/dest/image.jpg
 };
 
-download.image(options)
+download
+  .image(options)
   .then(({ filename }) => {
-    console.log('Saved to', filename); // saved to /path/to/dest/image.jpg
+    console.log("Saved to", filename); // saved to /path/to/dest/image.jpg
   })
   .catch((err) => console.error(err));
 ```
@@ -51,16 +52,17 @@ download.image(options)
 Download to a directory and save with an another filename
 
 ```js
-const download = require('image-downloader');
+const download = require("image-downloader");
 
 options = {
-  url: 'http://someurl.com/image2.jpg',
-  dest: '/path/to/dest/photo.jpg',     // will be saved to /path/to/dest/photo.jpg
+  url: "http://someurl.com/image2.jpg",
+  dest: "/path/to/dest/photo.jpg", // will be saved to /path/to/dest/photo.jpg
 };
 
-download.image(options)
+download
+  .image(options)
   .then(({ filename }) => {
-    console.log('Saved to', filename); // saved to /path/to/dest/photo.jpg
+    console.log("Saved to", filename); // saved to /path/to/dest/photo.jpg
   })
   .catch((err) => console.error(err));
 ```
@@ -85,20 +87,29 @@ download.image(options)
 
 ## Development Setup
 
-1. [Install Nix Package Manager](https://nixos.org/manual/nix/stable/installation/installing-binary.html)
+1. [Install Devbox](https://www.jetify.com/devbox/docs/installing_devbox/)
 
 2. [Install `direnv` with your OS package manager](https://direnv.net/docs/installation.html#from-system-packages)
 
 3. [Hook it `direnv` into your shell](https://direnv.net/docs/hook.html)
 
-4. At the top-level of your project run:
+4. **Load environment**
+
+   At the top-level of your project run:
 
    ```sh
    direnv allow
    ```
 
-   > The next time your launch your terminal and enter the top-level of your
-   > project, `direnv` will check for changes.
+   > The next time you will launch your terminal and enter the top-level of your
+   > project, `direnv` will check for changes and will automatically load the
+   > Devbox environment.
+
+5. **Install dependencies**
+
+   ```sh
+   npm install
+   ```
 
 ## Contribute
 

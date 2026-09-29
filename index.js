@@ -55,8 +55,11 @@ module.exports.image = ({ extractFilename = true, ...options } = {}) => {
     return Promise.reject(new Error('The options.dest is required'));
   }
 
+  // A relative `dest` belongs to the caller's working directory, not to the
+  // directory this module happens to be installed in: resolving against
+  // `__dirname` would silently write inside `node_modules/image-downloader`.
   if (!path.isAbsolute(options.dest)) {
-    options.dest = path.resolve(__dirname, options.dest);
+    options.dest = path.resolve(options.dest);
   }
 
   if (extractFilename && !path.extname(options.dest)) {

@@ -158,6 +158,27 @@ describe('Issues', () => {
       expect(() => fs.accessSync(filename)).not.toThrow();
     });
   });
+
+  it('#31 - a relative dest is resolved against process.cwd()', () => {
+    const cwd = process.cwd();
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'image-downloader-cwd-'));
+    const downloads = path.join(root, 'downloads');
+
+    fs.mkdirSync(downloads);
+    // __dirname and the cwd are the same directory in this repository, so the
+    // only way to tell the two resolutions apart is to move the process.
+    process.chdir(root);
+
+    return download.image({ url: 'http://someurl.com/image-success.png', dest: 'downloads' })
+      .then(({ filename }) => {
+        expect(filename).toEqual(path.join(downloads, 'image-success.png'));
+        expect(() => fs.accessSync(filename)).not.toThrow();
+      })
+      .finally(() => {
+        process.chdir(cwd);
+        fs.rmSync(root, { recursive: true, force: true });
+      });
+  });
 });
 
 describe('path traversal protection (CWE-22)', () => {

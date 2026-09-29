@@ -10,7 +10,8 @@ declare module 'image-downloader' {
     url: string;
 
     /**
-     * The image destination. Can be a directory or a filename.
+     * The image destination. Can be a directory or a filename. A relative path
+     * is resolved against `process.cwd()`.
      * If a directory is given, ID will automatically extract the image filename
      * from `options.url`
      */

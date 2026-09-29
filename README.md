@@ -36,8 +36,9 @@ A call to `image(options)` runs through six steps:
    non-object argument, e.g. `image(null)`, which the parameter destructuring
    rejects.)
 2. **Destination resolution** — an absolute `options.dest` is used as given. A
-   relative one is resolved against the module's own directory, not
-   `process.cwd()`, so **pass an absolute path** when the destination matters.
+   relative one is resolved against `process.cwd()`, the directory the calling
+   process was started in, so `dest: 'images'` writes next to the script that
+   was run rather than inside the installed module.
 3. **Filename derivation** — when `extractFilename` is `true` and `dest` has no
    extension, the file name is taken from the URL pathname: percent-encoding is
    decoded first, a NUL byte is refused, `path.basename` strips the directories,
@@ -67,8 +68,9 @@ npm install --save image-downloader
 
 - **url** (_required_) - the image URL to download
 - **dest** (_required_) - the image destination. Can be a directory or a
-  filename. If a directory is given, ID will automatically extract the image
-  filename from `options.url` (see usage bellow)
+  filename; a relative path is resolved against `process.cwd()`. If a directory
+  is given, ID will automatically extract the image filename from
+  `options.url` (see usage bellow)
 - **extractFilename** - boolean indicating whether the image filename will be
   automatically extracted from `options.url` or not. Set to `false` to have
   `options.dest` without a file extension for example. (default: `true`)

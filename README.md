@@ -1,11 +1,59 @@
 # Node Image Downloader
 
-A Node module for downloading image to disk from a given URL
+A Node.js module for downloading an image to disk from a given URL.
 
 [![npm](https://img.shields.io/npm/v/image-downloader.svg)](https://www.npmjs.com/package/image-downloader)
 [![Build status](https://gitlab.com/demsking/image-downloader/badges/main/pipeline.svg)](https://gitlab.com/demsking/image-downloader/pipelines)
 [![Test coverage](https://gitlab.com/demsking/image-downloader/badges/main/coverage.svg)](https://gitlab.com/demsking/image-downloader/pipelines)
 [![Buy me a beer](https://img.shields.io/badge/Buy%20me-a%20beer-1f425f.svg)](https://www.buymeacoffee.com/demsking)
+
+## Design goals
+
+- **Streaming by default** — the response body is piped straight to the
+  destination file; there is no in-memory copy of the image.
+- **One runtime dependency** — `follow-redirects`, and nothing else. Adding a
+  second one is a decision to be argued for, not a convenience.
+- **Bounded resources** — a socket-inactivity `timeout` and a `maxContentLength`
+  cap keep a stalled or oversized response from pinning the promise open or
+  filling the disk.
+- **Safe file names** — the file name is derived from an untrusted URL, so it is
+  decoded once, checked for NUL bytes, reduced to a basename, and verified to
+  stay inside `options.dest`.
+- **Predictable failure** — errors arrive as a rejected promise carrying a
+  `code` (see [Error handling](#error-handling)); nothing is written to stdout
+  and no callback is required.
+- **No surprises for the caller** — `options` is never mutated, and redirect
+  handling cannot leak the caller's credentials to a server-chosen origin.
+- **Typed** — a hand-written `index.d.ts` ships with the package, so the
+  `Options` type and its defaults are visible in an editor.
+
+## How it works
+
+A call to `image(options)` runs through six steps:
+
+1. **Validation** — `options.url` and `options.dest` are required; a missing one
+   rejects the promise rather than throwing. (The one synchronous failure is a
+   non-object argument, e.g. `image(null)`, which the parameter destructuring
+   rejects.)
+2. **Destination resolution** — an absolute `options.dest` is used as given. A
+   relative one is resolved against the module's own directory, not
+   `process.cwd()`, so **pass an absolute path** when the destination matters.
+3. **Filename derivation** — when `extractFilename` is `true` and `dest` has no
+   extension, the file name is taken from the URL pathname: percent-encoding is
+   decoded first, a NUL byte is refused, `path.basename` strips the directories,
+   and the result must resolve inside `dest`. Otherwise `dest` is the file name,
+   exactly as it was given.
+4. **Request** — only `http:` and `https:` are accepted, and the protocol is
+   checked before any socket or file is opened. `options.headers` is copied, so
+   the redirect machinery cannot delete headers from the caller's object.
+5. **Streaming to disk** — a non-200 status rejects the download and the body is
+   drained. Otherwise the response is written to `dest`, guarded by a write
+   flag set that includes `O_NOFOLLOW` where the platform defines it. A declared
+   `content-length` is only a fast path out of an oversize download; the running
+   byte count is the enforcement point.
+6. **Settlement** — the promise resolves with `{ filename }` where `filename` is
+   the resolved destination. Any error destroys the write stream and the
+   request so the file descriptor and the socket are released.
 
 ## Install
 
@@ -30,8 +78,26 @@ npm install --save image-downloader
   `0` to disable the limit (default: `104857600`, 100 MiB)
 - **maxRedirects** - the maximum number of allowed redirects; if exceeded, an
   error will be emitted. (default: `21`)
+- **beforeRedirect** - called before each redirect is followed, with the request
+  options that will be used for the redirected request. Throw from the hook to
+  cancel the download. The module's own cross-origin credential stripping runs
+  after the hook returns, so the hook cannot re-enable it.
 
 For advanced options, see [Node.js `http.request()`'s options documentation](https://nodejs.org/dist/latest-v12.x/docs/api/http.html#http_http_request_url_options_callback)
+
+## Error handling
+
+Failures are reported as a rejected promise. Match on `error.code` where one is
+set, and on `error.message` otherwise:
+
+| `code`                                       | Raised when                                                                                                                                                                                                        |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ERR_INVALID_FILENAME`                       | The URL path cannot produce a safe file name: invalid percent-encoding, a NUL byte, or a name that resolves outside `options.dest` (CWE-22).                                                                       |
+| `ERR_UNSUPPORTED_PROTOCOL`                   | `options.url` is not an `http:` or `https:` URL. Rejected before any socket or file is opened.                                                                                                                     |
+| `ERR_RESPONSE_TOO_LARGE`                     | The response exceeds `maxContentLength`, whether it declared so in `content-length` or simply kept sending.                                                                                                        |
+| errno codes (`ELOOP`, `EACCES`, `ENOSPC`, …) | Propagated unchanged from the filesystem or the socket.                                                                                                                                                            |
+| — (message `TimeoutError`)                   | The socket was idle for `options.timeout` milliseconds. The class lives in `lib/TimeoutError.js` and is not re-exported by the package entry point, so match on the message unless you require that path directly. |
+| — (other messages)                           | A missing required option, a non-200 status code, or any network error surfaced by the HTTP client.                                                                                                                |
 
 ## Security
 
@@ -114,32 +180,6 @@ download.image(options)
   })
   .catch((err) => console.error(err));
 ```
-
-## Development Setup
-
-1. [Install Devbox](https://www.jetify.com/devbox/docs/installing_devbox/)
-
-2. [Install `direnv` with your OS package manager](https://direnv.net/docs/installation.html#from-system-packages)
-
-3. [Hook it `direnv` into your shell](https://direnv.net/docs/hook.html)
-
-4. **Load environment**
-
-   At the top-level of your project run:
-
-   ```sh
-   direnv allow
-   ```
-
-   > The next time you will launch your terminal and enter the top-level of your
-   > project, `direnv` will check for changes and will automatically load the
-   > Devbox environment.
-
-5. **Install dependencies**
-
-   ```sh
-   npm install
-   ```
 
 ## Contribute
 

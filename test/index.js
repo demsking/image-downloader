@@ -6,6 +6,7 @@
 /* global describe it expect beforeEach afterEach */
 
 const fs = require('fs');
+const http = require('http');
 const os = require('os');
 const path = require('path');
 const nock = require('nock');
@@ -233,5 +234,304 @@ describe('path traversal protection (CWE-22)', () => {
     return malicious('http://someurl.com/images/%2e%2e%5csentinel.txt').then(({ filename }) => {
       expect(path.dirname(filename)).toEqual(uploads);
     });
+  });
+});
+
+describe('redirect credential protection (CWE-200)', () => {
+  let root;
+
+  beforeEach(() => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'image-downloader-redirect-'));
+  });
+
+  afterEach(() => {
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  const credentials = {
+    accept: 'image/jpeg',
+    authorization: 'Bearer AUTH_SECRET',
+    cookie: 'session=COOKIE_SECRET',
+    'proxy-authorization': 'Basic PROXY_SECRET',
+    'x-api-key': 'CUSTOM_SECRET',
+  };
+
+  const redirecting = (origin, location) => {
+    const captured = {};
+
+    nock(origin).get('/start.jpg').reply(302, '', { location });
+    nock(location.split('/').slice(0, 3).join('/')).get('/hidden.jpg').reply(function capture() {
+      captured.headers = this.req.headers;
+
+      return [200, 'attacker-bytes', { 'Content-Type': 'image/jpeg' }];
+    });
+
+    return captured;
+  };
+
+  it('does not forward credentials to another origin', () => {
+    const captured = redirecting('http://origin.test', 'http://target.test/hidden.jpg');
+
+    return download.image({
+      url: 'http://origin.test/start.jpg',
+      dest: path.join(root, 'cross-origin.jpg'),
+      headers: credentials,
+    }).then(() => {
+      expect(captured.headers).toBeDefined();
+      expect(captured.headers).not.toHaveProperty('authorization');
+      expect(captured.headers).not.toHaveProperty('cookie');
+      expect(captured.headers).not.toHaveProperty('proxy-authorization');
+      expect(captured.headers).not.toHaveProperty('x-api-key');
+      expect(captured.headers).toHaveProperty('accept', 'image/jpeg');
+    });
+  });
+
+  it('does not forward credentials to a subdomain of the original host', () => {
+    const captured = redirecting('http://example.com', 'http://evil.example.com/hidden.jpg');
+
+    return download.image({
+      url: 'http://example.com/start.jpg',
+      dest: path.join(root, 'subdomain.jpg'),
+      headers: credentials,
+    }).then(() => {
+      expect(captured.headers).toBeDefined();
+      expect(captured.headers).not.toHaveProperty('authorization');
+      expect(captured.headers).not.toHaveProperty('x-api-key');
+    });
+  });
+
+  it('keeps the caller headers on a same-origin redirect', () => {
+    const captured = redirecting('http://someurl.com', 'http://someurl.com/hidden.jpg');
+
+    return download.image({
+      url: 'http://someurl.com/start.jpg',
+      dest: path.join(root, 'same-origin.jpg'),
+      headers: { 'x-api-key': 'SAME_ORIGIN_SECRET' },
+    }).then(() => {
+      expect(captured.headers).toHaveProperty('x-api-key', 'SAME_ORIGIN_SECRET');
+    });
+  });
+
+  it('does not mutate the caller headers object', () => {
+    const captured = redirecting('http://origin.test', 'http://target.test/hidden.jpg');
+    const headers = { accept: 'image/jpeg', authorization: 'Bearer AUTH_SECRET' };
+
+    return download.image({
+      url: 'http://origin.test/start.jpg',
+      dest: path.join(root, 'untouched.jpg'),
+      headers,
+    }).then(() => {
+      expect(captured.headers).not.toHaveProperty('authorization');
+      expect(headers).toEqual({ accept: 'image/jpeg', authorization: 'Bearer AUTH_SECRET' });
+    });
+  });
+
+  it('rejects a redirect whose location is not a valid url', () => {
+    nock('http://someurl.com').get('/bad-origin.jpg').reply(302, '', { location: 'http://bad host/hidden.jpg' });
+
+    return download.image({
+      url: 'http://someurl.com/bad-origin.jpg',
+      dest: path.join(root, 'bad-origin.jpg'),
+      headers: { 'x-api-key': 'CUSTOM_SECRET' },
+    }).then(
+      () => { throw new Error('Should have been rejected'); },
+      (error) => {
+        expect(error).toBeInstanceOf(Error);
+      }
+    );
+  });
+
+  it('still calls a caller-provided beforeRedirect hook', () => {
+    const captured = redirecting('http://someurl.com', 'http://someurl.com/hidden.jpg');
+
+    let hook = null;
+
+    return download.image({
+      url: 'http://someurl.com/start.jpg',
+      dest: path.join(root, 'hook.jpg'),
+      headers: { 'x-api-key': 'SAME_ORIGIN_SECRET' },
+      beforeRedirect: (options, response, request) => {
+        hook = { statusCode: response.statusCode, from: request.url };
+      },
+    }).then(() => {
+      expect(captured.headers).toHaveProperty('x-api-key', 'SAME_ORIGIN_SECRET');
+      expect(hook).toEqual({ statusCode: 302, from: 'http://someurl.com/start.jpg' });
+    });
+  });
+});
+
+describe('download limits (CWE-770)', () => {
+  let root;
+
+  beforeEach(() => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'image-downloader-limits-'));
+  });
+
+  afterEach(() => {
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  const serve = (handler, run) => new Promise((resolve, reject) => {
+    const server = http.createServer(handler);
+
+    server.unref();
+    server.listen(0, '127.0.0.1', () => run(server).then(resolve, reject).finally(() => server.close()));
+  });
+
+  it('rejects a declared body larger than maxContentLength without writing a file', () => {
+    const dest = path.join(root, 'declared.jpg');
+    const body = Buffer.alloc(4096);
+
+    return serve((request, response) => {
+      request.on('error', () => {});
+      response.on('error', () => {});
+      response.writeHead(200, { 'Content-Length': body.length, 'Content-Type': 'image/jpeg' });
+      response.end(body);
+    }, (server) => download.image({
+      url: `http://127.0.0.1:${server.address().port}/image.jpg`,
+      dest,
+      maxContentLength: 1024,
+    }).then(
+      () => { throw new Error('Should have been rejected'); },
+      (error) => {
+        expect(error.code).toBe('ERR_RESPONSE_TOO_LARGE');
+        expect(fs.existsSync(dest)).toBe(false);
+      }
+    ));
+  });
+
+  it('downloads without a limit when maxContentLength is 0', () => {
+    const dest = path.join(root, 'unlimited.jpg');
+    const body = Buffer.alloc(4096);
+
+    return serve((request, response) => {
+      request.on('error', () => {});
+      response.on('error', () => {});
+      response.writeHead(200, { 'Content-Length': body.length, 'Content-Type': 'image/jpeg' });
+      response.end(body);
+    }, (server) => download.image({
+      url: `http://127.0.0.1:${server.address().port}/image.jpg`,
+      dest,
+      maxContentLength: 0,
+    }).then(({ filename }) => {
+      expect(fs.statSync(filename).size).toBe(body.length);
+    }));
+  });
+
+  it('aborts a chunked body that grows past maxContentLength', () => {
+    const dest = path.join(root, 'chunked.jpg');
+
+    return serve((request, response) => {
+      request.on('error', () => {});
+      response.on('error', () => {});
+      response.writeHead(200, { 'Content-Type': 'image/jpeg' });
+      response.write(Buffer.alloc(2048));
+      response.write(Buffer.alloc(2048));
+      response.end();
+    }, (server) => download.image({
+      url: `http://127.0.0.1:${server.address().port}/image.jpg`,
+      dest,
+      maxContentLength: 1024,
+    }).then(
+      () => { throw new Error('Should have been rejected'); },
+      (error) => {
+        expect(error.code).toBe('ERR_RESPONSE_TOO_LARGE');
+      }
+    ));
+  });
+});
+
+describe('filesystem write protection (CWE-59)', () => {
+  let root;
+
+  beforeEach(() => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'image-downloader-symlink-'));
+  });
+
+  afterEach(() => {
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  const itNoFollow = fs.constants.O_NOFOLLOW ? it : it.skip;
+
+  itNoFollow('refuses to overwrite the target of a symlinked destination', () => {
+    const content = path.join(root, 'shadow.txt');
+    const link = path.join(root, 'image.jpg');
+
+    fs.writeFileSync(content, 'ORIGINAL');
+    fs.symlinkSync(content, link);
+
+    nock('http://someurl.com').get('/symlink.jpg').reply(200, 'attacker-bytes', { 'Content-Type': 'image/jpeg' });
+
+    return expect(download.image({ url: 'http://someurl.com/symlink.jpg', dest: link }))
+      .rejects.toMatchObject({ code: 'ELOOP' })
+      .then(() => {
+        expect(fs.readFileSync(content, 'utf8')).toEqual('ORIGINAL');
+      });
+  });
+});
+
+describe('request lifecycle', () => {
+  let root;
+
+  beforeEach(() => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'image-downloader-lifecycle-'));
+  });
+
+  afterEach(() => {
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  it('rejects a protocol that is not http(s) without writing anything', () => {
+    return expect(download.image({ url: 'file:///etc/passwd', dest: root }))
+      .rejects.toMatchObject({ code: 'ERR_UNSUPPORTED_PROTOCOL' })
+      .then(() => {
+        expect(fs.existsSync(path.join(root, 'passwd'))).toBe(false);
+      });
+  });
+
+  it('rejects an invalid url when no file name has to be extracted', () => {
+    return expect(download.image({ url: 'not a valid url', dest: path.join(root, 'out.jpg') }))
+      .rejects.toThrow(/Invalid URL/);
+  });
+
+  it('destroys the connection when a request times out', () => {
+    const dest = path.join(root, 'timeout.jpg');
+    const state = { closed: false };
+
+    const server = http.createServer(() => {});
+
+    server.unref();
+    server.on('connection', (socket) => {
+      socket.on('close', () => {
+        state.closed = true;
+      });
+    });
+
+    return new Promise((resolve, reject) => {
+      server.listen(0, '127.0.0.1', () => {
+        download.image({
+          url: `http://127.0.0.1:${server.address().port}/image.jpg`,
+          dest,
+          timeout: 250,
+        }).then(
+          () => reject(new Error('Should have been rejected')),
+          (error) => {
+            try {
+              expect(error).toBeInstanceOf(TimeoutError);
+            } catch (assertion) {
+              reject(assertion);
+
+              return;
+            }
+
+            // The remote end must observe the closed socket
+            setTimeout(resolve, 200);
+          }
+        );
+      });
+    }).then(() => {
+      expect(state.closed).toBe(true);
+    }).finally(() => server.close());
   });
 });

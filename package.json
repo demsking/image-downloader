@@ -28,7 +28,7 @@
   },
   "homepage": "https://gitlab.com/demsking/image-downloader",
   "dependencies": {
-    "follow-redirects": "^1.15.0"
+    "follow-redirects": "^1.16.0"
   },
   "devDependencies": {
     "@types/follow-redirects": "^1.14.1",

@@ -1,10 +1,11 @@
 declare module 'image-downloader' {
-  import { RequestOptions } from 'http';
+  import { IncomingHttpHeaders, OutgoingHttpHeaders, RequestOptions } from 'http';
 
-  type Options = Pick<RequestOptions, 'headers' | 'auth' | 'agent' | 'timeout' | 'maxHeaderSize'> & {
+  type Options = Pick<RequestOptions, 'headers' | 'auth' | 'agent' | 'maxHeaderSize'> & {
 
     /**
-     * The image URL to download
+     * The image URL to download. Only the `http:` and `https:` protocols are
+     * supported.
      */
     url: string;
 
@@ -28,6 +29,33 @@ declare module 'image-downloader' {
      * @default 21
      */
     maxRedirects?: number;
+
+    /**
+     * Socket inactivity timeout in milliseconds. `timeout` is a deadline for
+     * silence on the connection, not for the whole download.
+     * @default 60000
+     */
+    timeout?: number;
+
+    /**
+     * Maximum number of bytes accepted for the download. A larger response is
+     * rejected with an `ERR_RESPONSE_TOO_LARGE` error. Set to `0` to disable
+     * the limit.
+     * @default 104857600
+     */
+    maxContentLength?: number;
+
+    /**
+     * Called before each redirect is followed, with the request options that
+     * will be used for the redirected request. Throw to cancel the download.
+     * Authentication headers are dropped after this hook returns when the
+     * redirect leaves the origin of `options.url`.
+     */
+    beforeRedirect?: (
+      options: RequestOptions,
+      response: { headers: IncomingHttpHeaders; statusCode?: number },
+      request: { url: string; method: string; headers?: OutgoingHttpHeaders },
+    ) => void;
   }
 
   type DownloadResult = {

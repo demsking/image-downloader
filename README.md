@@ -23,11 +23,41 @@ npm install --save image-downloader
   automatically extracted from `options.url` or not. Set to `false` to have
   `options.dest` without a file extension for example. (default: `true`)
 - **headers** - HTTP headers (default: `{}`)
-- **timeout** - milliseconds before a request times out
+- **timeout** - socket inactivity timeout in milliseconds, not a deadline for
+  the whole download (default: `60000`)
+- **maxContentLength** - maximum number of bytes accepted for the download; a
+  larger response is rejected with an `ERR_RESPONSE_TOO_LARGE` error. Set to
+  `0` to disable the limit (default: `104857600`, 100 MiB)
 - **maxRedirects** - the maximum number of allowed redirects; if exceeded, an
   error will be emitted. (default: `21`)
 
 For advanced options, see [Node.js `http.request()`'s options documentation](https://nodejs.org/dist/latest-v12.x/docs/api/http.html#http_http_request_url_options_callback)
+
+## Security
+
+Only `http:` and `https:` URLs are supported. Beyond that:
+
+- **No path traversal** - the file name is decoded before its basename is taken
+  and the result is checked to stay inside `options.dest` (CWE-22). A file name
+  that would escape it is rejected with an `ERR_INVALID_FILENAME` error.
+- **Credentials stay on their origin** - a redirect target is chosen by the
+  remote server, not by your code, so only a small set of safe headers
+  (`accept`, `accept-encoding`, `accept-language`, `cache-control`, `dnt`,
+  `if-*`, `pragma`, `range`, `te`, `user-agent`) is forwarded to a different
+  origin. `authorization`, `cookie`, `proxy-authorization` and any custom
+  authentication header are dropped (CWE-200, CWE-522).
+- **Bounded downloads** - the response body is limited by
+  `maxContentLength` and the socket by `timeout`, so a remote server cannot
+  fill the local disk or keep the promise pending forever (CWE-770).
+- **No symlink write-through** - `options.dest` is opened with `O_NOFOLLOW`
+  where the platform provides it, so a symlink placed in the destination
+  directory cannot make the download overwrite another file (CWE-59). On
+  failure the socket and the file descriptor are released.
+
+Redirect targets are not filtered: up to `maxRedirects` redirects are followed
+to whatever host they point at. When `options.url` comes from an untrusted
+source, validate it and use `beforeRedirect` to refuse unexpected hosts (this
+also covers server-side request forgery against internal services).
 
 ## Usage
 

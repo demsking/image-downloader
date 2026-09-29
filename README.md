@@ -53,7 +53,9 @@ A call to `image(options)` runs through six steps:
    byte count is the enforcement point.
 6. **Settlement** — the promise resolves with `{ filename }` where `filename` is
    the resolved destination. Any error destroys the write stream and the
-   request so the file descriptor and the socket are released.
+   request so the file descriptor and the socket are released, and removes the
+   partially written destination: the promise only rejects once no partial file
+   is left behind.
 
 ## Install
 
@@ -72,10 +74,12 @@ npm install --save image-downloader
   `options.dest` without a file extension for example. (default: `true`)
 - **headers** - HTTP headers (default: `{}`)
 - **timeout** - socket inactivity timeout in milliseconds, not a deadline for
-  the whole download (default: `60000`)
-- **maxContentLength** - maximum number of bytes accepted for the download; a
-  larger response is rejected with an `ERR_RESPONSE_TOO_LARGE` error. Set to
-  `0` to disable the limit (default: `104857600`, 100 MiB)
+  the whole download. Set to `0` to disable it (default: `60000`)
+- **maxContentLength** - maximum number of bytes accepted for the download,
+  counted on the wire (the response is never decompressed); a larger response
+  is rejected with an `ERR_RESPONSE_TOO_LARGE` error. Set to `0` to disable the
+  limit (default: `104857600`, 100 MiB). A numeric string is accepted, so a
+  value coming from a config file or the environment is honoured.
 - **maxRedirects** - the maximum number of allowed redirects; if exceeded, an
   error will be emitted. (default: `21`)
 - **beforeRedirect** - called before each redirect is followed, with the request
@@ -115,10 +119,12 @@ Only `http:` and `https:` URLs are supported. Beyond that:
 - **Bounded downloads** - the response body is limited by
   `maxContentLength` and the socket by `timeout`, so a remote server cannot
   fill the local disk or keep the promise pending forever (CWE-770).
-- **No symlink write-through** - `options.dest` is opened with `O_NOFOLLOW`
-  where the platform provides it, so a symlink placed in the destination
-  directory cannot make the download overwrite another file (CWE-59). On
-  failure the socket and the file descriptor are released.
+- **No symlink write-through** - the final path component of `options.dest` is
+  opened with `O_NOFOLLOW` where the platform provides it, so a symlink at that
+  path cannot make the download overwrite another file (CWE-59). A symlinked
+  *directory* component is still followed, exactly as a plain `open(2)` would:
+  the destination directory is yours to control. On failure the socket and the
+  file descriptor are released and a partial destination file is removed.
 
 Redirect targets are not filtered: up to `maxRedirects` redirects are followed
 to whatever host they point at. When `options.url` comes from an untrusted

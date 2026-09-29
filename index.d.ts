@@ -32,18 +32,20 @@ declare module 'image-downloader' {
 
     /**
      * Socket inactivity timeout in milliseconds. `timeout` is a deadline for
-     * silence on the connection, not for the whole download.
+     * silence on the connection, not for the whole download. Set to `0` to
+     * disable it.
      * @default 60000
      */
     timeout?: number;
 
     /**
-     * Maximum number of bytes accepted for the download. A larger response is
-     * rejected with an `ERR_RESPONSE_TOO_LARGE` error. Set to `0` to disable
-     * the limit.
+     * Maximum number of bytes accepted for the download, counted on the wire
+     * (the response is never decompressed). A larger response is rejected with
+     * an `ERR_RESPONSE_TOO_LARGE` error. A numeric string is accepted. Set to
+     * `0` to disable the limit.
      * @default 104857600
      */
-    maxContentLength?: number;
+    maxContentLength?: number | string;
 
     /**
      * Called before each redirect is followed, with the request options that

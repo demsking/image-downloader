@@ -62,18 +62,24 @@ touch one of these paths, keep the comment and extend the corresponding suite.
   result is verified to stay inside `options.dest` via `isInside`.
 - **Credential leakage on redirect (CWE-200/CWE-522)** — `CROSS_ORIGIN_HEADERS`
   is an **allowlist**; every other caller header, plus `options.auth`, is dropped
-  when the redirect target's origin differs. An undeterminable origin fails
-  closed. The module's own `beforeRedirect` runs *after* a caller hook so it has
-  the last word.
+  when the redirect target's origin differs. The origin is derived from
+  `hostname`/`port` (`authorityOf()`), which are what the socket is opened
+  against, because a caller hook can rewrite the mutable `host`. An
+  undeterminable origin fails closed. The module's own `beforeRedirect` runs
+  *after* a caller hook so it has the last word.
 - **Unbounded resources (CWE-400/CWE-770)** — `DEFAULT_TIMEOUT` (60 s socket
-  inactivity) and `DEFAULT_MAX_CONTENT_LENGTH` (100 MiB). `content-length` is
-  only a fast path; the running byte count is the enforcement point. Setting
-  `maxContentLength: 0` disables the limit.
+  inactivity) and `DEFAULT_MAX_CONTENT_LENGTH` (100 MiB), both read through
+  `numberOption()` so a numeric string from a config file still works.
+  `content-length` is only a fast path; the running byte count is the
+  enforcement point. `maxContentLength: 0` (or `Infinity`) and `timeout: 0`
+  disable their limit.
 - **Symlink write-through (CWE-59)** — `WRITE_FLAGS` includes `O_NOFOLLOW` where
-  the platform defines it.
+  the platform defines it, which covers the final path component of `dest` only.
 - **Single settlement (CWE-772)** — all success *and* failure paths go through
-  the local `settle()`, which releases the write stream and destroys the request
-  exactly once.
+  the local `settle()`, which destroys the request, releases the write stream
+  and removes a partially written destination exactly once, so the promise only
+  rejects once no partial file is left behind. Cleanup removes a regular file
+  only: a symlink, device or FIFO that made the open fail is left in place.
 - **No caller mutation** — `follow-redirects` deletes headers from the object it
   is handed, so `requestOptions.headers` is copied before the request is built;
   `download.image()` must never mutate the caller's `options`.

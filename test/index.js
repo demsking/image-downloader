@@ -358,6 +358,78 @@ describe('redirect credential protection (CWE-200)', () => {
       expect(hook).toEqual({ statusCode: 302, from: 'http://someurl.com/start.jpg' });
     });
   });
+
+  it('ignores a hook that rewrites the host of a cross-origin redirect', () => {
+    const state = { headers: null };
+    const target = http.createServer((request, response) => {
+      state.headers = request.headers;
+      response.writeHead(200, { 'Content-Type': 'image/jpeg' });
+      response.end('attacker-bytes');
+    });
+    const origin = http.createServer((request, response) => {
+      response.writeHead(302, { location: `http://127.0.0.1:${target.address().port}/hidden.jpg` });
+      response.end();
+    });
+
+    const listening = (server) => new Promise((resolve) => {
+      server.listen(0, '127.0.0.1', resolve);
+    });
+
+    return listening(origin)
+      .then(() => listening(target))
+      .then(() => download.image({
+        url: `http://127.0.0.1:${origin.address().port}/start.jpg`,
+        dest: path.join(root, 'rewritten-host.jpg'),
+        headers: { 'x-api-key': 'CUSTOM_SECRET' },
+        // An old `host` value must not be able to disguise the real target.
+        beforeRedirect: (options) => {
+          options.host = `127.0.0.1:${origin.address().port}`;
+        },
+      }))
+      .then(() => {
+        expect(state.headers).not.toHaveProperty('x-api-key');
+      })
+      .finally(() => {
+        origin.close();
+        target.close();
+      });
+  });
+
+  it('still drops credentials when a hook removes the redirect host and hostname', () => {
+    const state = { headers: null };
+    const target = http.createServer((request, response) => {
+      state.headers = request.headers;
+      response.writeHead(200, { 'Content-Type': 'image/jpeg' });
+      response.end('attacker-bytes');
+    });
+    const origin = http.createServer((request, response) => {
+      response.writeHead(302, { location: `http://127.0.0.1:${target.address().port}/hidden.jpg` });
+      response.end();
+    });
+
+    const listening = (server) => new Promise((resolve) => {
+      server.listen(0, '127.0.0.1', resolve);
+    });
+
+    return listening(origin)
+      .then(() => listening(target))
+      .then(() => download.image({
+        url: `http://127.0.0.1:${origin.address().port}/start.jpg`,
+        dest: path.join(root, 'deleted-hostname.jpg'),
+        headers: { 'x-api-key': 'CUSTOM_SECRET' },
+        beforeRedirect: (options) => {
+          delete options.host;
+          delete options.hostname;
+        },
+      }).catch(() => {}))
+      .then(() => {
+        expect(state.headers || {}).not.toHaveProperty('x-api-key');
+      })
+      .finally(() => {
+        origin.close();
+        target.close();
+      });
+  });
 });
 
 describe('download limits (CWE-770)', () => {
@@ -418,7 +490,29 @@ describe('download limits (CWE-770)', () => {
     }));
   });
 
-  it('aborts a chunked body that grows past maxContentLength', () => {
+  it('honours a numeric string for maxContentLength', () => {
+    const dest = path.join(root, 'numeric-string.jpg');
+    const body = Buffer.alloc(4096);
+
+    return serve((request, response) => {
+      request.on('error', () => {});
+      response.on('error', () => {});
+      response.writeHead(200, { 'Content-Length': body.length, 'Content-Type': 'image/jpeg' });
+      response.end(body);
+    }, (server) => download.image({
+      url: `http://127.0.0.1:${server.address().port}/image.jpg`,
+      dest,
+      maxContentLength: '1024',
+    }).then(
+      () => { throw new Error('Should have been rejected'); },
+      (error) => {
+        expect(error.code).toBe('ERR_RESPONSE_TOO_LARGE');
+        expect(fs.existsSync(dest)).toBe(false);
+      }
+    ));
+  });
+
+  it('aborts a chunked body that grows past maxContentLength and removes the partial file', () => {
     const dest = path.join(root, 'chunked.jpg');
 
     return serve((request, response) => {
@@ -436,6 +530,29 @@ describe('download limits (CWE-770)', () => {
       () => { throw new Error('Should have been rejected'); },
       (error) => {
         expect(error.code).toBe('ERR_RESPONSE_TOO_LARGE');
+        expect(fs.existsSync(dest)).toBe(false);
+      }
+    ));
+  });
+
+  it('removes the partial file when a started download times out', () => {
+    const dest = path.join(root, 'stalled.jpg');
+
+    return serve((request, response) => {
+      request.on('error', () => {});
+      response.on('error', () => {});
+      response.writeHead(200, { 'Content-Type': 'image/jpeg' });
+      response.write(Buffer.alloc(100));
+      // Never end: the socket goes idle and the timeout fires.
+    }, (server) => download.image({
+      url: `http://127.0.0.1:${server.address().port}/image.jpg`,
+      dest,
+      timeout: 250,
+    }).then(
+      () => { throw new Error('Should have been rejected'); },
+      (error) => {
+        expect(error).toBeInstanceOf(TimeoutError);
+        expect(fs.existsSync(dest)).toBe(false);
       }
     ));
   });
@@ -493,6 +610,29 @@ describe('request lifecycle', () => {
   it('rejects an invalid url when no file name has to be extracted', () => {
     return expect(download.image({ url: 'not a valid url', dest: path.join(root, 'out.jpg') }))
       .rejects.toThrow(/Invalid URL/);
+  });
+
+  it('applies the 60000 ms socket inactivity timeout by default', () => {
+    const followRedirects = require('follow-redirects');
+    const original = followRedirects.http.get;
+    let captured = null;
+
+    followRedirects.http.get = (url, options, callback) => {
+      captured = options;
+
+      return original.call(followRedirects.http, url, options, callback);
+    };
+
+    nock('http://someurl.com').get('/default-timeout.jpg').reply(200, 'image-bytes', { 'Content-Type': 'image/jpeg' });
+
+    return download.image({
+      url: 'http://someurl.com/default-timeout.jpg',
+      dest: path.join(root, 'default-timeout.jpg'),
+    }).then(() => {
+      expect(captured.timeout).toBe(60000);
+    }).finally(() => {
+      followRedirects.http.get = original;
+    });
   });
 
   it('destroys the connection when a request times out', () => {

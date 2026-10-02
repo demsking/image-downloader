@@ -16,9 +16,12 @@ const invalidFilename = (reason) => {
  * way around leaves %2f (and %5c) as ordinary characters inside the "file
  * name", where they turn back into path separators once decoded and escape
  * the destination directory.
+ *
+ * @param {string} pathname The URL pathname to derive a file name from.
+ * @returns {string} The basename of the decoded, validated pathname.
  */
 const filenameFromPathname = (pathname) => {
-  let decoded;
+  let decoded = '';
 
   try {
     decoded = decodeURIComponent(pathname);
@@ -36,14 +39,18 @@ const filenameFromPathname = (pathname) => {
 
 /**
  * Tells whether `file` resolves to an entry strictly inside `directory`.
+ *
+ * @param {string} file The candidate file path to test.
+ * @param {string} directory The directory `file` must stay strictly inside.
+ * @returns {boolean} True when `file` is strictly inside `directory`.
  */
 const isInside = (file, directory) => {
   const relative = path.relative(directory, file);
 
-  return relative !== ''
-    && relative !== '..'
-    && !relative.startsWith(`..${path.sep}`)
-    && !path.isAbsolute(relative);
+  return relative !== '' &&
+    relative !== '..' &&
+    !relative.startsWith(`..${path.sep}`) &&
+    !path.isAbsolute(relative);
 };
 
 module.exports.image = ({ extractFilename = true, ...options } = {}) => {
@@ -62,7 +69,7 @@ module.exports.image = ({ extractFilename = true, ...options } = {}) => {
   if (extractFilename && !path.extname(options.dest)) {
     const directory = options.dest;
 
-    let resolved;
+    let resolved = '';
 
     try {
       resolved = path.join(directory, filenameFromPathname(new URL(options.url).pathname));

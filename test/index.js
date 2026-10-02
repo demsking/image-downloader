@@ -155,8 +155,8 @@ describe('Issues', () => {
 });
 
 describe('path traversal protection (CWE-22)', () => {
-  let root;
-  let uploads;
+  let root = '';
+  let uploads = '';
 
   beforeEach(() => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'image-downloader-'));

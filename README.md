@@ -104,6 +104,11 @@ download.image(options)
 
 Please follow [CONTRIBUTING.md](https://gitlab.com/demsking/image-downloader/blob/main/CONTRIBUTING.md).
 
+## Changelog
+
+See [CHANGELOG.md](https://gitlab.com/demsking/image-downloader/blob/main/CHANGELOG.md)
+for the notable changes of each release.
+
 ## License
 
 Under the MIT license. See [LICENSE](https://gitlab.com/demsking/image-downloader/blob/main/LICENSE) file for more details.

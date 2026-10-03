@@ -1,11 +1,27 @@
 # Node Image Downloader
 
-A Node module for downloading image to disk from a given URL
-
 [![npm](https://img.shields.io/npm/v/image-downloader.svg)](https://www.npmjs.com/package/image-downloader)
 [![Build status](https://gitlab.com/demsking/image-downloader/badges/main/pipeline.svg)](https://gitlab.com/demsking/image-downloader/pipelines)
 [![Test coverage](https://gitlab.com/demsking/image-downloader/badges/main/coverage.svg)](https://gitlab.com/demsking/image-downloader/pipelines)
 [![Buy me a beer](https://img.shields.io/badge/Buy%20me-a%20beer-1f425f.svg)](https://www.buymeacoffee.com/demsking)
+
+A lightweight Node.js module for downloading images from URLs and saving them
+to the local filesystem.
+
+`image-downloader` provides a simple API for downloading images while handling
+filename extraction, destination directories, and filesystem operations. It is
+designed to be easy to integrate into Node.js applications that need to
+retrieve and persist images from remote URLs.
+
+## Features
+
+- Download images from remote URLs.
+- Simple Node.js API.
+- Automatic filename extraction from image URLs.
+- Configurable destination directory.
+- Support for custom filenames.
+- Promise-based API.
+- Lightweight and easy to integrate.
 
 ## Install
 
@@ -15,8 +31,8 @@ npm install --save image-downloader
 
 ## Options
 
-- **url** (*required*) - the image URL to download
-- **dest** (*required*) - the image destination. Can be a directory or a
+- **url** (_required_) - the image URL to download
+- **dest** (_required_) - the image destination. Can be a directory or a
   filename. If a directory is given, ID will automatically extract the image
   filename from `options.url` (see usage bellow)
 - **extractFilename** - boolean indicating whether the image filename will be
@@ -34,16 +50,17 @@ For advanced options, see [Node.js `http.request()`'s options documentation](htt
 Download to a directory and save with the original filename
 
 ```js
-const download = require('image-downloader');
+const download = require("image-downloader");
 
 const options = {
-  url: 'http://someurl.com/image.jpg',
-  dest: '/path/to/dest',               // will be saved to /path/to/dest/image.jpg
+  url: "http://someurl.com/image.jpg",
+  dest: "/path/to/dest", // will be saved to /path/to/dest/image.jpg
 };
 
-download.image(options)
+download
+  .image(options)
   .then(({ filename }) => {
-    console.log('Saved to', filename); // saved to /path/to/dest/image.jpg
+    console.log("Saved to", filename); // saved to /path/to/dest/image.jpg
   })
   .catch((err) => console.error(err));
 ```
@@ -51,16 +68,17 @@ download.image(options)
 Download to a directory and save with an another filename
 
 ```js
-const download = require('image-downloader');
+const download = require("image-downloader");
 
 options = {
-  url: 'http://someurl.com/image2.jpg',
-  dest: '/path/to/dest/photo.jpg',     // will be saved to /path/to/dest/photo.jpg
+  url: "http://someurl.com/image2.jpg",
+  dest: "/path/to/dest/photo.jpg", // will be saved to /path/to/dest/photo.jpg
 };
 
-download.image(options)
+download
+  .image(options)
   .then(({ filename }) => {
-    console.log('Saved to', filename); // saved to /path/to/dest/photo.jpg
+    console.log("Saved to", filename); // saved to /path/to/dest/photo.jpg
   })
   .catch((err) => console.error(err));
 ```
